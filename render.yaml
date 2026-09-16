@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: aping-warehouse
+    runtime: node
+    repo: https://github.com/your-username/aping-warehouse.git
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
+    disks:
+      - name: data
+        mountPath: /opt/render/project/src/data
+        sizeGB: 1

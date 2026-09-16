@@ -1,0 +1,15 @@
+{
+  "name": "aping-warehouse",
+  "version": "1.0.0",
+  "description": "阿平仓库管理系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,5043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>阿平仓库管理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  color: #333;
+  font-size: 14px;
+  min-height: 100vh;
+}
+.app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; background: #f0f2f5; position: relative; padding-bottom: 20px; }
+
+/* 顶部导航 */
+.top-bar {
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  color: #fff;
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.top-bar .back-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.top-bar .title { font-size: 17px; font-weight: 600; }
+.top-bar .right-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* 首页 */
+.home-header {
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  color: #fff;
+  padding: 20px 16px 30px;
+  text-align: center;
+}
+.home-header .app-name { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.home-header .subtitle { font-size: 13px; opacity: 0.8; }
+.home-header .user-info { margin-top: 10px; font-size: 13px; opacity: 0.9; }
+.home-header .backup-reminder {
+  margin-top: 12px;
+  background: rgba(255,165,0,0.2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.warning-banner {
+  background: #fff5f5;
+  border-left: 4px solid #e53e3e;
+  padding: 10px 16px;
+  margin: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #c53030;
+}
+
+/* 功能网格 */
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+.menu-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 12px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.1s;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.menu-item:active { transform: scale(0.96); }
+.menu-icon { font-size: 28px; margin-bottom: 8px; }
+.menu-label { font-size: 15px; font-weight: 500; color: #2d3748; }
+.menu-item.primary { background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%); color: #fff; }
+.menu-item.primary .menu-label { color: #fff; }
+.menu-item.success { background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: #fff; }
+.menu-item.success .menu-label { color: #fff; }
+.menu-item.warning { background: linear-gradient(135deg, #dd6b20 0%, #c05621 100%); color: #fff; }
+.menu-item.warning .menu-label { color: #fff; }
+
+/* 卡片 */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  margin: 12px 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 统计卡片 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin: 12px 16px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.stat-card .stat-value { font-size: 20px; font-weight: 700; color: #2c5282; }
+.stat-card .stat-label { font-size: 12px; color: #718096; margin-top: 4px; }
+
+/* 表单 */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 14px; color: #4a5568; margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  background: #fff;
+  color: #2d3748;
+  outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49,130,206,0.1);
+}
+.form-textarea { min-height: 70px; resize: vertical; }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+
+/* 按钮 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  min-height: 44px;
+}
+.btn:active { opacity: 0.8; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: #3182ce; color: #fff; }
+.btn-success { background: #38a169; color: #fff; }
+.btn-danger { background: #e53e3e; color: #fff; }
+.btn-warning { background: #dd6b20; color: #fff; }
+.btn-default { background: #e2e8f0; color: #2d3748; }
+.btn-block { width: 100%; }
+.btn-sm { padding: 6px 12px; font-size: 13px; min-height: 32px; border-radius: 6px; }
+.btn-group { display: flex; gap: 10px; }
+.btn-group .btn { flex: 1; }
+
+/* 列表/清单 */
+.list-item {
+  background: #fff;
+  border-radius: 10px;
+  margin: 8px 16px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+.list-item:active { background: #f7fafc; }
+.list-item .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.list-item .item-title { font-size: 15px; font-weight: 600; color: #2d3748; }
+.list-item .item-sub { font-size: 13px; color: #718096; margin-top: 4px; }
+.list-item .item-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.tag-green { background: #c6f6d5; color: #22543d; }
+.tag-red { background: #fed7d7; color: #742a2a; }
+.tag-gray { background: #e2e8f0; color: #4a5568; }
+.tag-blue { background: #bee3f8; color: #2a4365; }
+.tag-purple { background: #e9d8fd; color: #44337a; }
+.tag-orange { background: #feebc8; color: #7b341e; }
+
+/* 表格 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th, .data-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+.data-table th {
+  background: #f7fafc;
+  font-weight: 600;
+  color: #4a5568;
+  position: sticky;
+  top: 0;
+}
+.data-table tr:active { background: #f7fafc; }
+.table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table tr.revoked-row { color: #a0aec0; }
+.data-table tr.revoked-row td { color: #a0aec0; }
+.data-table .row-action-btn {
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* 明细行 */
+.detail-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  background: #f7fafc;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.detail-row .del-btn {
+  background: #fed7d7;
+  color: #e53e3e;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+.modal-body { padding: 16px; }
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 10px;
+}
+.modal-footer .btn { flex: 1; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 2000;
+  max-width: 80%;
+  text-align: center;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #a0aec0;
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* 筛选栏 */
+.filter-bar {
+  background: #fff;
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 44px;
+  z-index: 50;
+  border-bottom: 1px solid #e2e8f0;
+}
+.filter-bar select, .filter-bar input {
+  flex: 1;
+  min-width: 100px;
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* 复选框 */
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e0;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.checkbox.checked {
+  background: #3182ce;
+  border-color: #3182ce;
+  color: #fff;
+}
+
+/* 库存行 */
+.stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f7;
+}
+.stock-row:last-child { border-bottom: none; }
+.stock-name { font-size: 14px; font-weight: 500; }
+.stock-info { font-size: 13px; color: #718096; margin-top: 2px; }
+.stock-qty { font-size: 15px; font-weight: 600; color: #2c5282; }
+.stock-qty.low { color: #e53e3e; }
+
+/* 页面切换动画 */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 10px;
+}
+.bottom-bar .btn { flex: 1; }
+
+/* 装箱显示 */
+.pack-info {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 2px;
+}
+
+/* 危险操作确认输入 */
+.confirm-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e53e3e;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* 仓库分组 */
+.warehouse-group {
+  margin-bottom: 16px;
+}
+.warehouse-group-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d3748;
+  padding: 10px 16px;
+  background: #edf2f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 登录页 */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+.login-logo { font-size: 56px; margin-bottom: 16px; }
+.login-title { color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.login-subtitle { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 30px; }
+.login-form {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.login-form .form-label { color: #4a5568; }
+
+/* 操作日志 */
+.log-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 13px;
+}
+.log-item:last-child { border-bottom: none; }
+.log-time { color: #a0aec0; font-size: 12px; }
+.log-content { color: #2d3748; margin-top: 2px; }
+.log-user { color: #718096; font-size: 12px; margin-top: 2px; }
+
+/* 浮动按钮 */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #3182ce;
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(49,130,206,0.4);
+  cursor: pointer;
+  z-index: 50;
+}
+.fab:active { transform: scale(0.95); }
+
+/* 搜索框 */
+.search-box {
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 44px;
+  z-index: 50;
+}
+.search-box input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f7fafc;
+}
+
+/* 分段控件 */
+.segmented {
+  display: flex;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 14px;
+}
+.segmented-item {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #4a5568;
+}
+.segmented-item.active {
+  background: #fff;
+  color: #2c5282;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* 行内编辑 */
+.inline-edit {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.inline-edit:hover { background: #edf2f7; }
+
+/* 缺货标红 */
+.out-of-stock {
+  color: #e53e3e !important;
+  font-weight: 600;
+}
+.row-out-of-stock {
+  background: #fff5f5 !important;
+  border-left: 3px solid #e53e3e;
+}
+</style>
+</head>
+<body>
+<div class="app-container" id="app">
+  <!-- 登录页 -->
+  <div id="page-login" class="page active">
+    <div class="login-container">
+      <div class="login-logo">📦</div>
+      <div class="login-title">阿平仓库管理</div>
+      <div class="login-subtitle">高效、精准的仓库管理系统</div>
+      <div class="login-form">
+        <div class="form-group">
+          <label class="form-label">登录账号</label>
+          <input type="text" class="form-input" id="login-username" placeholder="请输入账号" value="admin">
+        </div>
+        <div class="form-group">
+          <label class="form-label">密码</label>
+          <input type="password" class="form-input" id="login-password" placeholder="请输入密码" value="123456">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="doLogin()">登 录</button>
+        <div style="text-align:center;margin-top:12px;font-size:12px;color:#a0aec0;">
+          默认账号：admin / 123456（管理员）<br>
+          测试账号：operator / 123456（操作员）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 首页 -->
+  <div id="page-home" class="page">
+    <div class="home-header">
+      <div class="app-name">阿平仓库管理</div>
+      <div class="subtitle">Warehouse Management System V4.0</div>
+      <div class="user-info">
+        <span id="home-username">管理员</span>
+        <span class="tag tag-blue" id="home-role" style="margin-left:6px;">管理员</span>
+      </div>
+      <div id="backup-reminder" class="backup-reminder" style="display:none;">
+        ⚠️ 今日未备份数据
+      </div>
+    </div>
+
+    <div id="stock-warning-banner" class="warning-banner" style="display:none;">
+      ⚠️ 有产品库存低于安全库存，请及时补货
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-products">0</div>
+        <div class="stat-label">产品总数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-warehouses">0</div>
+        <div class="stat-label">仓库数量</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total-stock">0</div>
+        <div class="stat-label">总库存(台)</div>
+      </div>
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-item primary" onclick="goPage('stock-in')">
+        <div class="menu-icon">📥</div>
+        <div class="menu-label">入库录入</div>
+      </div>
+      <div class="menu-item success" onclick="goPage('stock-out')">
+        <div class="menu-icon">📤</div>
+        <div class="menu-label">出库录入</div>
+      </div>
+      <div class="menu-item warning" onclick="goPage('ocr')">
+        <div class="menu-icon">🔍</div>
+        <div class="menu-label">识图录入</div>
+      </div>
+      <div class="menu-item" onclick="goPage('stock-overview')">
+        <div class="menu-icon">📊</div>
+        <div class="menu-label">库存总览</div>
+      </div>
+      <div class="menu-item" onclick="goPage('product-list')">
+        <div class="menu-icon">📋</div>
+        <div class="menu-label">产品档案</div>
+      </div>
+      <div class="menu-item" onclick="goPage('stock-in-list')">
+        <div class="menu-icon">📑</div>
+        <div class="menu-label">入库清单</div>
+      </div>
+      <div class="menu-item" onclick="goPage('stock-out-list')">
+        <div class="menu-icon">📑</div>
+        <div class="menu-label">出库清单</div>
+      </div>
+      <div class="menu-item" id="menu-transfer" onclick="goPage('transfer')">
+        <div class="menu-icon">🔄</div>
+        <div class="menu-label">库存调拨</div>
+      </div>
+      <div class="menu-item" id="menu-warehouse" onclick="goPage('warehouse-manage')">
+        <div class="menu-icon">🏭</div>
+        <div class="menu-label">仓库管理</div>
+      </div>
+      <div class="menu-item" id="menu-user" onclick="goPage('user-manage')">
+        <div class="menu-icon">👥</div>
+        <div class="menu-label">用户管理</div>
+      </div>
+      <div class="menu-item" id="menu-backup" onclick="goPage('backup')">
+        <div class="menu-icon">💾</div>
+        <div class="menu-label">数据备份</div>
+      </div>
+      <div class="menu-item" id="menu-log" onclick="goPage('operation-log')">
+        <div class="menu-icon">📝</div>
+        <div class="menu-label">操作日志</div>
+      </div>
+    </div>
+
+    <div style="padding:16px;text-align:center;color:#a0aec0;font-size:12px;">
+      阿平仓库管理 V4.0<br>
+      <span onclick="logout()" style="color:#3182ce;cursor:pointer;">退出登录</span>
+    </div>
+  </div>
+
+  <!-- 库存总览 -->
+  <div id="page-stock-overview" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">库存总览</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">导入 / 导出</div>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-primary" onclick="exportStockExcel()">导出Excel</button>
+        <button class="btn btn-sm btn-success" onclick="exportStockImage()">导出图片</button>
+        <button class="btn btn-sm btn-default" onclick="document.getElementById('import-stock-file').click()">导入Excel</button>
+      </div>
+      <input type="file" id="import-stock-file" accept=".csv" style="display:none;" onchange="importStockCSV(event)">
+    </div>
+    <div id="stock-overview-content"></div>
+  </div>
+
+  <!-- 仓库库存详情 -->
+  <div id="page-warehouse-stock" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('stock-overview')">← 返回</button>
+      <div class="title" id="warehouse-stock-title">仓库库存</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">导入 / 导出</div>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-primary" onclick="exportWarehouseStockExcel()">导出Excel</button>
+        <button class="btn btn-sm btn-success" onclick="exportWarehouseStockImage()">导出图片</button>
+        <button class="btn btn-sm btn-default" onclick="document.getElementById('import-wh-stock-file').click()">导入Excel</button>
+      </div>
+      <input type="file" id="import-wh-stock-file" accept=".csv" style="display:none;" onchange="importWarehouseStockCSV(event)">
+    </div>
+    <div id="warehouse-stock-content"></div>
+  </div>
+
+  <!-- 入库录入 -->
+  <div id="page-stock-in" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">入库录入</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">入库仓库</label>
+        <select class="form-select" id="in-warehouse"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">入库来源</label>
+        <select class="form-select" id="in-source">
+          <option value="采购入库">采购入库</option>
+          <option value="生产入库">生产入库</option>
+          <option value="退货入库">退货入库</option>
+          <option value="识图入库">识图入库</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="form-textarea" id="in-remark" placeholder="选填"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        入库明细
+        <button class="btn btn-sm btn-primary" onclick="addInDetail()">+ 添加产品</button>
+      </div>
+      <div id="in-details"></div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn btn-primary btn-block" id="submit-in-btn" onclick="submitStockIn()">提交入库</button>
+    </div>
+  </div>
+
+  <!-- 入库清单 -->
+  <div id="page-stock-in-list" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">入库清单</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">导入 / 导出</div>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-primary" onclick="exportInListExcel()">导出Excel</button>
+        <button class="btn btn-sm btn-success" onclick="exportInListImage()">导出图片</button>
+        <button class="btn btn-sm btn-default" onclick="document.getElementById('import-inlist-file').click()">导入Excel</button>
+      </div>
+      <input type="file" id="import-inlist-file" accept=".csv" style="display:none;" onchange="importInListCSV(event)">
+    </div>
+    <div class="filter-bar">
+      <select id="in-list-filter-warehouse" onchange="renderStockInList()">
+        <option value="">全部仓库</option>
+      </select>
+      <select id="in-list-filter-status" onchange="renderStockInList()">
+        <option value="">全部状态</option>
+        <option value="normal">正常</option>
+        <option value="revoked">已撤回</option>
+      </select>
+    </div>
+    <div class="card" style="padding:10px 12px;">
+      <input type="text" id="in-list-filter-product" class="form-input" placeholder="搜索产品名称..." style="margin-bottom:8px;" oninput="renderStockInList()">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="date" id="in-list-filter-date-start" class="form-input" style="flex:1;min-width:100px;font-size:13px;" onchange="renderStockInList()">
+        <span style="color:#a0aec0;font-size:12px;">至</span>
+        <input type="date" id="in-list-filter-date-end" class="form-input" style="flex:1;min-width:100px;font-size:13px;" onchange="renderStockInList()">
+      </div>
+    </div>
+    <div id="stock-in-list-content"></div>
+  </div>
+
+  <!-- 出库录入 -->
+  <div id="page-stock-out" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">出库录入</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">出库仓库</label>
+        <select class="form-select" id="out-warehouse" onchange="checkOutStock()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">出货去向</label>
+        <input type="text" class="form-input" id="out-destination" placeholder="客户名称/出货去向">
+      </div>
+      <div class="form-group">
+        <label class="form-label">运输渠道</label>
+        <select class="form-select" id="out-channel">
+          <option value="">请选择</option>
+          <option value="自提">自提</option>
+          <option value="快递">快递</option>
+          <option value="物流">物流</option>
+          <option value="送货">送货</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="form-textarea" id="out-remark" placeholder="选填"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        出库明细
+        <button class="btn btn-sm btn-primary" onclick="addOutDetail()">+ 添加产品</button>
+      </div>
+      <div id="out-details"></div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn btn-success btn-block" id="submit-out-btn" onclick="submitStockOut()">提交出库</button>
+    </div>
+  </div>
+
+  <!-- 出库清单 -->
+  <div id="page-stock-out-list" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">出库清单</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">导入 / 导出</div>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-primary" onclick="exportOutListExcel()">导出Excel</button>
+        <button class="btn btn-sm btn-success" onclick="exportOutListImage()">导出图片</button>
+        <button class="btn btn-sm btn-default" onclick="document.getElementById('import-outlist-file').click()">导入Excel</button>
+      </div>
+      <input type="file" id="import-outlist-file" accept=".csv" style="display:none;" onchange="importOutListCSV(event)">
+    </div>
+    <div class="filter-bar">
+      <select id="out-list-filter-warehouse" onchange="renderStockOutList()">
+        <option value="">全部仓库</option>
+      </select>
+      <select id="out-list-filter-status" onchange="renderStockOutList()">
+        <option value="">全部状态</option>
+        <option value="normal">正常</option>
+        <option value="revoked">已撤回</option>
+      </select>
+    </div>
+    <div class="card" style="padding:10px 12px;">
+      <input type="text" id="out-list-filter-product" class="form-input" placeholder="搜索产品名称..." style="margin-bottom:8px;" oninput="renderStockOutList()">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="date" id="out-list-filter-date-start" class="form-input" style="flex:1;min-width:100px;font-size:13px;" onchange="renderStockOutList()">
+        <span style="color:#a0aec0;font-size:12px;">至</span>
+        <input type="date" id="out-list-filter-date-end" class="form-input" style="flex:1;min-width:100px;font-size:13px;" onchange="renderStockOutList()">
+      </div>
+    </div>
+    <div id="stock-out-list-content"></div>
+  </div>
+
+  <!-- 产品档案列表 -->
+  <div id="page-product-list" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">产品档案</div>
+      <button class="right-btn" id="btn-add-product" onclick="showAddProductModal()">+ 新增</button>
+    </div>
+    <div class="card" style="padding:10px 12px;margin-bottom:0;">
+      <div class="btn-group">
+        <button class="btn btn-sm btn-primary" onclick="exportProductExcel()">导出Excel</button>
+        <button class="btn btn-sm btn-success" onclick="exportProductImage()">导出图片</button>
+        <button class="btn btn-sm btn-default" onclick="document.getElementById('import-product-file').click()">导入Excel</button>
+      </div>
+      <input type="file" id="import-product-file" accept=".csv" style="display:none;" onchange="importProductCSV(event)">
+    </div>
+    <div class="search-box">
+      <input type="text" id="product-search" placeholder="搜索产品名称/编码..." oninput="renderProductList()">
+    </div>
+    <div id="product-list-content"></div>
+  </div>
+
+  <!-- 产品详情 -->
+  <div id="page-product-detail" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('product-list')">← 返回</button>
+      <div class="title">产品详情</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div id="product-detail-content"></div>
+  </div>
+
+  <!-- 识图功能 -->
+  <div id="page-ocr" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">识图录入</div>
+      <div style="width:60px;"></div>
+    </div>
+
+    <!-- 识别方式切换 -->
+    <div class="card" style="padding:8px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button id="ocr-tab-image" class="btn btn-primary" style="min-height:44px;" onclick="ocrSwitchTab('image')">📷 图片识别</button>
+        <button id="ocr-tab-text" class="btn btn-default" style="min-height:44px;" onclick="ocrSwitchTab('text')">📝 文字识别</button>
+      </div>
+    </div>
+
+    <!-- 图片识别模式 -->
+    <div id="ocr-image-mode">
+      <div class="card">
+        <div class="card-title">上传出货单图片</div>
+        <button class="btn btn-primary btn-block" style="min-height:52px;font-size:16px;" onclick="ocrPickImage()">📷 点击选择或拍摄图片</button>
+        <p style="text-align:center;color:#a0aec0;font-size:12px;margin-top:8px;">图片仅本地预览，不上传服务器</p>
+      </div>
+      <div class="card" id="ocr-image-preview-card" style="display:none;">
+        <img id="ocr-img-preview" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:12px;" alt="预览图">
+        <button class="btn btn-success btn-block" style="min-height:48px;" onclick="ocrDoRecognize('image')">开始识别</button>
+        <button class="btn btn-default btn-block" style="min-height:44px;margin-top:8px;" onclick="ocrClearImage()">重新选择</button>
+      </div>
+    </div>
+
+    <!-- 文字识别模式 -->
+    <div id="ocr-text-mode" style="display:none;">
+      <div class="card">
+        <div class="card-title">粘贴订单文字</div>
+        <p style="color:#718096;font-size:13px;margin-bottom:8px;">从聊天记录复制订单文字，粘贴到下方输入框，格式示例：产品名称 + 数量</p>
+        <textarea class="form-textarea" id="ocr-text-input" rows="8" placeholder="示例：&#10;通用产品A 40&#10;通用产品B 500&#10;定制产品X 200台&#10;产品C x 100"></textarea>
+        <button class="btn btn-success btn-block" style="min-height:48px;margin-top:10px;" onclick="ocrDoRecognize('text')">开始识别</button>
+      </div>
+    </div>
+
+    <!-- 识别结果 -->
+    <div class="card" id="ocr-result-card" style="display:none;">
+      <!-- 识别统计栏 -->
+      <div style="background:#f7fafc;border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:12px;color:#a0aec0;margin-bottom:4px;">识别统计</div>
+        <div id="ocr-stats-bar" style="font-size:14px;color:#2c5282;font-weight:600;">共 0 种 · 总数量 0</div>
+      </div>
+      <!-- 全选/全不选 -->
+      <div style="margin-bottom:8px;display:flex;gap:8px;">
+        <button class="btn btn-sm btn-default" onclick="ocrSelectAll(true)">全选</button>
+        <button class="btn btn-sm btn-default" onclick="ocrSelectAll(false)">全不选</button>
+      </div>
+      <!-- 结果表格 - 可左右滑动 -->
+      <div id="ocr-result-table" style="overflow-x:auto;-webkit-overflow-scrolling:touch;"></div>
+    </div>
+
+    <!-- 操作按钮 - 2x3网格 -->
+    <div class="card" id="ocr-action-card" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="btn btn-default" style="min-height:44px;" onclick="ocrSwitchTab('image')">📷 图片识别</button>
+        <button class="btn btn-default" style="min-height:44px;" onclick="ocrSwitchTab('text')">📝 文字识别</button>
+        <button class="btn btn-primary" style="min-height:44px;" onclick="ocrExportCSV()">导出Excel</button>
+        <button class="btn btn-success" style="min-height:44px;" onclick="ocrExportImg()">导出截图</button>
+        <button class="btn btn-success" style="min-height:44px;" onclick="ocrToIn()">一键入库</button>
+        <button class="btn btn-danger" style="min-height:44px;" onclick="ocrToOut()">一键出库</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:12px;color:#a0aec0;padding:8px 0 20px;">内容由 AI 生成，仅作预览核对</div>
+  </div>
+
+  <!-- 仓库管理 -->
+  <div id="page-warehouse-manage" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">仓库管理</div>
+      <button class="right-btn" onclick="showAddWarehouseModal()">+ 新增</button>
+    </div>
+    <div id="warehouse-manage-content"></div>
+  </div>
+
+  <!-- 用户管理 -->
+  <div id="page-user-manage" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">用户管理</div>
+      <button class="right-btn" onclick="showAddUserModal()">+ 新增</button>
+    </div>
+    <div id="user-manage-content"></div>
+  </div>
+
+  <!-- 数据备份 -->
+  <div id="page-backup" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">数据备份</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">一键备份</div>
+      <p style="color:#718096;font-size:13px;margin-bottom:12px;">
+        导出所有核心数据为CSV文件，建议每日备份并保存到云盘/邮箱。
+      </p>
+      <button class="btn btn-primary btn-block" onclick="doBackup()">💾 立即备份并下载</button>
+    </div>
+    <div class="card">
+      <div class="card-title">备份日志</div>
+      <div id="backup-log-content"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">数据恢复</div>
+      <p style="color:#e53e3e;font-size:13px;margin-bottom:12px;">
+        ⚠️ 恢复数据将覆盖当前所有数据，请谨慎操作！
+      </p>
+      <input type="file" id="restore-file" accept=".json,.csv" style="display:none;" onchange="handleRestoreFile(event)">
+      <button class="btn btn-danger btn-block" onclick="document.getElementById('restore-file').click()">
+        选择备份文件恢复
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title">初始化数据库</div>
+      <p style="color:#718096;font-size:13px;margin-bottom:10px;">
+        为新用户快速生成演示数据，或清空部分数据重新开始。
+      </p>
+      <button class="btn btn-primary btn-block" style="min-height:44px;margin-bottom:8px;" onclick="initDemoData()">📦 初始化演示数据</button>
+      <p style="color:#e53e3e;font-size:12px;margin-bottom:8px;">⚠️ 以下操作不可逆，请谨慎操作！</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="btn btn-sm btn-danger" style="min-height:40px;" onclick="selectiveClear('stockIn')">清入库单</button>
+        <button class="btn btn-sm btn-danger" style="min-height:40px;" onclick="selectiveClear('stockOut')">清出库单</button>
+        <button class="btn btn-sm btn-danger" style="min-height:40px;" onclick="selectiveClear('stock')">清库存</button>
+        <button class="btn btn-sm btn-danger" style="min-height:40px;" onclick="selectiveClear('products')">清产品</button>
+        <button class="btn btn-sm btn-danger" style="min-height:40px;" onclick="selectiveClear('flow')">清流水</button>
+        <button class="btn btn-sm btn-danger" style="min-height:40px;" onclick="selectiveClear('logs')">清日志</button>
+      </div>
+      <button class="btn btn-danger btn-block" style="min-height:44px;margin-top:10px;" onclick="selectiveClear('all')">清空所有数据</button>
+    </div>
+  </div>
+
+  <!-- 操作日志 -->
+  <div id="page-operation-log" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">操作日志</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div id="operation-log-content"></div>
+  </div>
+
+  <!-- 库存调拨 -->
+  <div id="page-transfer" class="page">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goPage('home')">← 返回</button>
+      <div class="title">库存调拨</div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">调出仓库</label>
+          <select class="form-select" id="transfer-from"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">调入仓库</label>
+          <select class="form-select" id="transfer-to"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">产品</label>
+        <select class="form-select" id="transfer-product" onchange="updateTransferStock()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">当前调出仓库存</label>
+        <div class="form-input" style="background:#f7fafc;color:#2c5282;font-weight:600;" id="transfer-current-stock">0 台</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">调拨数量</label>
+        <input type="number" class="form-input" id="transfer-qty" placeholder="请输入调拨数量" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="form-textarea" id="transfer-remark" placeholder="选填"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="submitTransfer()">确认调拨</button>
+    </div>
+    <div class="card">
+      <div class="card-title">调拨记录</div>
+      <div class="btn-group" style="margin-bottom:10px;">
+        <button class="btn btn-sm btn-primary" onclick="exportTransferExcel()">导出Excel</button>
+        <button class="btn btn-sm btn-success" onclick="exportTransferImage()">导出图片</button>
+      </div>
+      <div id="transfer-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 模态框容器 -->
+<div id="modal-container"></div>
+<div id="toast-container"></div>
+
+<script>
+// ==================== 数据层 ====================
+const STORAGE_KEY = 'aping_warehouse_v4';
+
+// 默认数据
+function getDefaultData() {
+  const now = Date.now();
+  return {
+    products: [
+      { id: 'P001', code: 'P001', name: '通用产品A', spec: '标准款', perBox: 10, safetyStock: 50, isCustom: false, createTime: now },
+      { id: 'P002', code: 'P002', name: '通用产品B', spec: '加强款', perBox: 20, safetyStock: 30, isCustom: false, createTime: now },
+      { id: 'P003', code: 'P003', name: '定制产品X', spec: '客户定制', perBox: 5, safetyStock: 10, isCustom: true, createTime: now },
+    ],
+    warehouses: [
+      { id: 'W001', code: 'W001', name: '主仓', type: 'normal', status: 'active', bindCustomer: '', isDefault: true, createTime: now },
+      { id: 'W002', code: 'W002', name: '定制仓-甲客户', type: 'custom', status: 'active', bindCustomer: '甲客户', isDefault: false, createTime: now },
+    ],
+    stockInOrders: [],
+    stockOutOrders: [],
+    transferOrders: [],
+    stockFlow: [],
+    users: [
+      { id: 'U001', username: 'admin', password: '123456', displayName: '管理员', role: 'admin', status: 'active', remark: '系统管理员' },
+      { id: 'U002', username: 'operator', password: '123456', displayName: '操作员小王', role: 'operator', status: 'active', remark: '仓库操作员' },
+    ],
+    operationLogs: [],
+    backupLogs: [],
+    ocrLogs: [],
+    settings: {
+      transferEnabled: true,
+      appName: '阿平仓库管理',
+    }
+  };
+}
+
+let db = null;
+let currentUser = null;
+let currentPage = 'login';
+
+// ====== 数据同步：服务器优先，localStorage作为离线备份 ======
+let _syncing = false;
+let _lastSyncTime = 0;
+
+// 加载数据
+function loadData() {
+  // 优先从服务器加载
+  loadFromServer(function(success) {
+    if (!success) {
+      // 服务器不可用时，从localStorage加载
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { db = JSON.parse(saved); } catch (e) { db = getDefaultData(); }
+      } else {
+        db = getDefaultData();
+        initDemoStock();
+      }
+    }
+    // 检查登录状态
+    const savedUser = sessionStorage.getItem('aping_current_user');
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser);
+    }
+    // 页面初始化
+    initApp();
+  });
+}
+
+// 从服务器加载数据
+function loadFromServer(callback) {
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/data', true);
+    xhr.timeout = 3000;
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText);
+        if (data && data.users) {
+          db = data;
+          // 同步到localStorage作为离线备份
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+          _lastSyncTime = data._lastUpdate || 0;
+          if (callback) callback(true);
+          return;
+        }
+      }
+      if (callback) callback(false);
+    };
+    xhr.onerror = function() { if (callback) callback(false); };
+    xhr.ontimeout = function() { if (callback) callback(false); };
+    xhr.send();
+  } catch (e) {
+    if (callback) callback(false);
+  }
+}
+
+// 保存数据 - 同时保存到服务器和localStorage
+function saveData() {
+  // 记录更新时间
+  if (db) {
+    db._lastUpdate = Date.now();
+  }
+  // localStorage作为本地备份
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  // 异步同步到服务器
+  saveToServer();
+}
+
+// 保存数据到服务器
+function saveToServer() {
+  if (_syncing) return; // 防止重复提交
+  _syncing = true;
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/data', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+      _syncing = false;
+      if (xhr.status === 200) {
+        _lastSyncTime = Date.now();
+      }
+    };
+    xhr.onerror = function() { _syncing = false; };
+    xhr.send(JSON.stringify(db));
+  } catch (e) {
+    _syncing = false;
+  }
+}
+
+// 定期从服务器拉取最新数据（每30秒）
+function startAutoSync() {
+  setInterval(function() {
+    if (currentUser) {
+      loadFromServer(function(success) {
+        if (success) {
+          // 刷新当前页面
+          if (currentPage && currentPage !== 'login') {
+            renderCurrentPage();
+          }
+        }
+      });
+    }
+  }, 30000);
+}
+
+// 刷新当前页面
+function renderCurrentPage() {
+  switch(currentPage) {
+    case 'home': renderHome(); break;
+    case 'product-list': renderProductList(); break;
+    case 'warehouse': renderWarehousePage(); break;
+    case 'stock-in': initStockInPage(); break;
+    case 'stock-out': initStockOutPage(); break;
+    case 'stock-in-list': renderStockInList(); break;
+    case 'stock-out-list': renderStockOutList(); break;
+    case 'transfer': initTransferPage(); break;
+    case 'backup': renderBackupPage(); break;
+    case 'operation-log': renderOperationLog(); break;
+    case 'ocr': initOcrPage(); break;
+    case 'warehouse-manage': renderWarehouseManage(); break;
+    case 'user-manage': renderUserManage(); break;
+  }
+}
+
+// 初始化演示库存
+function initDemoStock() {
+  const now = Date.now();
+  // 入库一些演示数据
+  const order1 = {
+    id: 'IN' + now,
+    warehouseId: 'W001',
+    source: '采购入库',
+    remark: '初始库存',
+    details: [
+      { productId: 'P001', qty: 100 },
+      { productId: 'P002', qty: 200 },
+    ],
+    status: 'normal',
+    createBy: 'U001',
+    createByName: '管理员',
+    createTime: now,
+  };
+  db.stockInOrders.push(order1);
+  
+  const order2 = {
+    id: 'IN' + (now + 1),
+    warehouseId: 'W002',
+    source: '生产入库',
+    remark: '定制产品入库',
+    details: [
+      { productId: 'P003', qty: 50 },
+    ],
+    status: 'normal',
+    createBy: 'U001',
+    createByName: '管理员',
+    createTime: now + 1,
+  };
+  db.stockInOrders.push(order2);
+
+  // 生成流水
+  order1.details.forEach(d => {
+    db.stockFlow.push({
+      id: 'F' + Math.random().toString(36).substr(2, 9),
+      productId: d.productId,
+      warehouseId: order1.warehouseId,
+      type: 'in',
+      qty: d.qty,
+      beforeQty: 0,
+      afterQty: d.qty,
+      orderId: order1.id,
+      orderType: 'stockIn',
+      remark: order1.source,
+      createBy: order1.createBy,
+      createByName: order1.createByName,
+      createTime: order1.createTime,
+    });
+  });
+  
+  let p1After = 100;
+  let p2After = 200;
+  order2.details.forEach(d => {
+    db.stockFlow.push({
+      id: 'F' + Math.random().toString(36).substr(2, 9),
+      productId: d.productId,
+      warehouseId: order2.warehouseId,
+      type: 'in',
+      qty: d.qty,
+      beforeQty: 0,
+      afterQty: d.qty,
+      orderId: order2.id,
+      orderType: 'stockIn',
+      remark: order2.source,
+      createBy: order2.createBy,
+      createByName: order2.createByName,
+      createTime: order2.createTime,
+    });
+  });
+}
+
+// ==================== 库存计算 ====================
+function getStock(productId, warehouseId) {
+  let total = 0;
+  db.stockFlow.forEach(f => {
+    if (f.productId === productId && f.warehouseId === warehouseId) {
+      if (f.type === 'in') total += f.qty;
+      else if (f.type === 'out') total -= f.qty;
+    }
+  });
+  return total;
+}
+
+function getProductStockAllWarehouses(productId) {
+  const result = {};
+  db.warehouses.forEach(w => {
+    result[w.id] = getStock(productId, w.id);
+  });
+  return result;
+}
+
+function getWarehouseStock(warehouseId) {
+  const result = {};
+  db.products.forEach(p => {
+    const qty = getStock(p.id, warehouseId);
+    if (qty !== 0) result[p.id] = qty;
+  });
+  return result;
+}
+
+function getTotalStock() {
+  let total = 0;
+  db.stockFlow.forEach(f => {
+    if (f.type === 'in') total += f.qty;
+    else if (f.type === 'out') total -= f.qty;
+  });
+  return total;
+}
+
+// 装箱显示
+function formatPack(qty, perBox) {
+  if (!perBox || perBox <= 0) return qty + '台';
+  const boxes = Math.floor(qty / perBox);
+  const remain = qty % perBox;
+  if (boxes === 0) return remain + '台';
+  if (remain === 0) return boxes + '箱';
+  return boxes + '箱+' + remain + '台';
+}
+
+// ==================== 工具函数 ====================
+function formatTime(ts) {
+  const d = new Date(ts);
+  const pad = n => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  const pad = n => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function genId(prefix) {
+  return prefix + Date.now() + Math.random().toString(36).substr(2, 4);
+}
+
+function getProductById(id) {
+  return db.products.find(p => p.id === id);
+}
+
+function getWarehouseById(id) {
+  return db.warehouses.find(w => w.id === id);
+}
+
+function getUserById(id) {
+  return db.users.find(u => u.id === id);
+}
+
+function getActiveWarehouses() {
+  return db.warehouses.filter(w => w.status === 'active');
+}
+
+function isAdmin() {
+  return currentUser && currentUser.role === 'admin';
+}
+
+// Toast
+function showToast(msg, duration = 2000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), duration);
+}
+
+// 操作日志
+function addOperationLog(action, detail) {
+  db.operationLogs.unshift({
+    id: genId('LOG'),
+    action,
+    detail,
+    userId: currentUser ? currentUser.id : '',
+    userName: currentUser ? currentUser.displayName : '',
+    createTime: Date.now(),
+  });
+  saveData();
+}
+
+// ==================== 模态框 ====================
+function showModal(config) {
+  const container = document.getElementById('modal-container');
+  const mask = document.createElement('div');
+  mask.className = 'modal-mask';
+  mask.onclick = (e) => {
+    if (e.target === mask && config.closeOnMask !== false) closeModal();
+  };
+
+  let footerHtml = '';
+  if (config.showFooter !== false) {
+    footerHtml = `
+      <div class="modal-footer">
+        <button class="btn btn-default" id="modal-cancel-btn">${config.cancelText || '取消'}</button>
+        <button class="btn ${config.confirmType || 'btn-primary'}" id="modal-confirm-btn">${config.confirmText || '确定'}</button>
+      </div>
+    `;
+  }
+
+  mask.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">${config.title}</div>
+      <div class="modal-body">${config.body}</div>
+      ${footerHtml}
+    </div>
+  `;
+  container.appendChild(mask);
+
+  // Use addEventListener to preserve closure context
+  if (config.showFooter !== false) {
+    mask.querySelector('#modal-cancel-btn').addEventListener('click', () => {
+      if (config.onCancel) config.onCancel();
+      else closeModal();
+    });
+    mask.querySelector('#modal-confirm-btn').addEventListener('click', () => {
+      if (config.onConfirm) config.onConfirm();
+    });
+  }
+
+  if (config.onShow) config.onShow();
+}
+
+function closeModal() {
+  const container = document.getElementById('modal-container');
+  if (container.lastChild) container.removeChild(container.lastChild);
+}
+
+// 二次确认
+function confirmDialog(config) {
+  const { title, message, confirmText = '确认撤销', dangerText, onConfirm } = config;
+  
+  let body = `<p style="font-size:14px;color:#4a5568;line-height:1.6;">${message}</p>`;
+  if (dangerText) {
+    body += `
+      <p style="font-size:13px;color:#e53e3e;margin-top:10px;">⚠️ 此操作不可撤销，请谨慎操作！</p>
+      <input type="text" class="confirm-input" id="confirm-danger-input" placeholder="请输入「${dangerText}」确认">
+    `;
+  }
+  
+  showModal({
+    title,
+    body,
+    confirmText: '确认',
+    confirmType: 'btn-danger',
+    onConfirm: () => {
+      if (dangerText) {
+        const input = document.getElementById('confirm-danger-input');
+        if (input.value.trim() !== dangerText) {
+          showToast(`请输入「${dangerText}」确认`);
+          return;
+        }
+      }
+      closeModal();
+      onConfirm();
+    }
+  });
+}
+
+// ==================== 页面导航 ====================
+function goPage(page) {
+  // 权限检查
+  if (page === 'warehouse-manage' && !isAdmin()) {
+    showToast('无权限访问');
+    return;
+  }
+  if (page === 'user-manage' && !isAdmin()) {
+    showToast('无权限访问');
+    return;
+  }
+  if (page === 'backup' && !isAdmin()) {
+    showToast('无权限访问');
+    return;
+  }
+  if (page === 'operation-log' && !isAdmin()) {
+    showToast('无权限访问');
+    return;
+  }
+  if (page === 'transfer' && !db.settings.transferEnabled) {
+    showToast('调拨功能未开启');
+    return;
+  }
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  currentPage = page;
+  window.scrollTo(0, 0);
+
+  // 页面初始化
+  if (page === 'home') initHome();
+  if (page === 'stock-overview') { renderStockOverview(); }
+  if (page === 'warehouse-stock') { renderWarehouseStock(); }
+  if (page === 'stock-in') { initStockInPage(); }
+  if (page === 'stock-in-list') { initInListFilters(); renderStockInList(); }
+  if (page === 'stock-out') { initStockOutPage(); }
+  if (page === 'stock-out-list') { initOutListFilters(); renderStockOutList(); }
+  if (page === 'ocr') { initOcrPage(); }
+  if (page === 'product-list') renderProductList();
+  if (page === 'warehouse-manage') renderWarehouseManage();
+  if (page === 'user-manage') renderUserManage();
+  if (page === 'backup') renderBackupPage();
+  if (page === 'operation-log') renderOperationLog();
+  if (page === 'transfer') initTransferPage();
+}
+
+// ==================== 登录 ====================
+function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  
+  if (!username || !password) {
+    showToast('请输入账号和密码');
+    return;
+  }
+  
+  const user = db.users.find(u => u.username === username && u.password === password);
+  if (!user) {
+    showToast('账号或密码错误');
+    return;
+  }
+  if (user.status !== 'active') {
+    showToast('账号已停用');
+    return;
+  }
+  
+  currentUser = user;
+  sessionStorage.setItem('aping_current_user', JSON.stringify(user));
+  addOperationLog('登录', '用户登录系统');
+  goPage('home');
+}
+
+function logout() {
+  addOperationLog('登出', '用户退出系统');
+  currentUser = null;
+  sessionStorage.removeItem('aping_current_user');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-login').classList.add('active');
+  currentPage = 'login';
+}
+
+// ==================== 首页 ====================
+function initHome() {
+  document.getElementById('home-username').textContent = currentUser.displayName;
+  document.getElementById('home-role').textContent = isAdmin() ? '管理员' : '操作员';
+  
+  // 统计数据
+  document.getElementById('stat-products').textContent = db.products.length;
+  document.getElementById('stat-warehouses').textContent = getActiveWarehouses().length;
+  document.getElementById('stat-total-stock').textContent = getTotalStock();
+  
+  // 库存预警
+  let hasWarning = false;
+  db.products.forEach(p => {
+    const total = Object.values(getProductStockAllWarehouses(p.id)).reduce((a, b) => a + b, 0);
+    if (total < p.safetyStock) hasWarning = true;
+  });
+  document.getElementById('stock-warning-banner').style.display = hasWarning ? 'block' : 'none';
+  
+  // 备份提醒
+  const today = formatDate(Date.now());
+  const todayBackup = db.backupLogs.find(b => formatDate(b.createTime) === today);
+  document.getElementById('backup-reminder').style.display = 
+    (isAdmin() && !todayBackup) ? 'inline-block' : 'none';
+  
+  // 管理员菜单
+  document.getElementById('menu-warehouse').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('menu-user').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('menu-backup').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('menu-log').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('menu-transfer').style.display = db.settings.transferEnabled ? '' : 'none';
+}
+
+// ==================== 库存总览 ====================
+function initWarehouseFilters() {
+  const selects = ['stock-filter-warehouse', 'in-list-filter-warehouse', 'out-list-filter-warehouse'];
+  selects.forEach(sid => {
+    const sel = document.getElementById(sid);
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">全部仓库</option>';
+    db.warehouses.forEach(w => {
+      sel.innerHTML += `<option value="${w.id}">${w.name}${w.type === 'custom' ? ' (定制仓)' : ''}</option>`;
+    });
+    sel.value = currentVal;
+  });
+}
+
+function renderStockOverview() {
+  const content = document.getElementById('stock-overview-content');
+  
+  let html = '<div class="card"><div class="card-title">仓库列表</div>';
+  
+  db.warehouses.forEach(w => {
+    const stocks = getWarehouseStock(w.id);
+    const totalQty = Object.values(stocks).reduce((a, b) => a + b, 0);
+    const productCount = Object.keys(stocks).filter(k => stocks[k] !== 0).length;
+    
+    html += `
+      <div class="list-item" onclick="goWarehouseStock('${w.id}')" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="item-title">
+            ${w.name}
+            ${w.type === 'custom' ? '<span class="tag tag-purple">定制仓</span>' : ''}
+            ${w.status === 'inactive' ? '<span class="tag tag-gray">已停用</span>' : ''}
+          </div>
+          <div class="item-sub">${productCount} 种产品 · 共 ${totalQty} 台</div>
+        </div>
+        <div style="font-size:20px;color:#3182ce;font-weight:700;">${totalQty}</div>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+// 仓库库存详情页
+let currentWarehouseId = null;
+
+function goWarehouseStock(warehouseId) {
+  currentWarehouseId = warehouseId;
+  const w = getWarehouseById(warehouseId);
+  document.getElementById('warehouse-stock-title').textContent = w ? w.name + ' 库存' : '仓库库存';
+  goPage('warehouse-stock');
+}
+
+function renderWarehouseStock() {
+  const content = document.getElementById('warehouse-stock-content');
+  const w = getWarehouseById(currentWarehouseId);
+  
+  if (!w) {
+    content.innerHTML = '<div class="empty-state">仓库不存在</div>';
+    return;
+  }
+  
+  const stocks = getWarehouseStock(w.id);
+  const productsWithStock = db.products.filter(p => (stocks[p.id] || 0) !== 0);
+  const totalQty = Object.values(stocks).reduce((a, b) => a + b, 0);
+  
+  let html = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">${productsWithStock.length}</div>
+        <div class="stat-label">产品种类</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${totalQty}</div>
+        <div class="stat-label">总库存(台)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${w.type === 'custom' ? '定制仓' : '普通仓'}</div>
+        <div class="stat-label">仓库类型</div>
+      </div>
+    </div>
+  `;
+  
+  if (productsWithStock.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">📦</div>该仓库暂无库存</div>';
+    content.innerHTML = html;
+    return;
+  }
+  
+  html += '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>产品名称</th><th>库存数量</th><th>装箱</th><th>详情</th></tr></thead><tbody>';
+  
+  productsWithStock.forEach(p => {
+    const qty = stocks[p.id] || 0;
+    const isLow = qty < p.safetyStock;
+    html += `
+      <tr>
+        <td>${p.name}${p.isCustom ? ' <span class="tag tag-blue">定制</span>' : ''}</td>
+        <td style="font-weight:600;color:${isLow ? '#e53e3e' : '#2c5282'};">${qty}</td>
+        <td style="font-size:12px;color:#718096;">${formatPack(qty, p.perBox)}</td>
+        <td><button class="row-action-btn" style="background:#bee3f8;color:#2a4365;" onclick="showProductFlowDetail('${p.id}','${w.id}')">详情</button></td>
+      </tr>
+    `;
+  });
+  
+  html += '</tbody></table></div></div>';
+  content.innerHTML = html;
+}
+
+// 产品出入库流水详情（带仓库筛选、导出、筛选）
+let flowDetailContext = { productId: null, warehouseId: null, filterType: '', filterDate: '' };
+
+function showProductFlowDetail(productId, warehouseId) {
+  flowDetailContext = { productId, warehouseId, filterType: '', filterDate: '' };
+  renderFlowDetailModal();
+}
+
+function renderFlowDetailModal() {
+  const { productId, warehouseId, filterType, filterDate } = flowDetailContext;
+  const p = getProductById(productId);
+  if (!p) return;
+  const w = getWarehouseById(warehouseId);
+  
+  let flows = db.stockFlow.filter(f => f.productId === productId && f.warehouseId === warehouseId);
+  
+  // 筛选类型
+  if (filterType) {
+    if (filterType === 'in') flows = flows.filter(f => f.type === 'in');
+    else if (filterType === 'out') flows = flows.filter(f => f.type === 'out');
+  }
+  
+  // 筛选日期
+  if (filterDate) {
+    const filterDateStr = formatDate(filterDate);
+    flows = flows.filter(f => formatDate(f.createTime) === filterDateStr);
+  }
+  
+  flows.sort((a, b) => b.createTime - a.createTime);
+  
+  let flowHtml = '';
+  if (flows.length === 0) {
+    flowHtml = '<div style="text-align:center;color:#a0aec0;padding:16px;">暂无流水记录</div>';
+  } else {
+    flowHtml = '<div class="table-container"><table class="data-table"><thead><tr><th>日期时间</th><th>类型</th><th>数量</th><th>结存</th><th>备注</th></tr></thead><tbody>';
+    flows.forEach(f => {
+      const isIn = f.type === 'in';
+      const typeText = {
+        'stockIn': '入库',
+        'revokeStockIn': '撤回入库',
+        'stockOut': '出库',
+        'revokeStockOut': '撤回出库',
+        'transferIn': '调拨入',
+        'transferOut': '调拨出',
+      }[f.orderType] || (isIn ? '入库' : '出库');
+      
+      flowHtml += `
+        <tr>
+          <td style="white-space:nowrap;font-size:12px;">${formatTime(f.createTime)}</td>
+          <td><span class="tag ${isIn ? 'tag-green' : 'tag-red'}">${typeText}</span></td>
+          <td style="font-weight:600;color:${isIn ? '#38a169' : '#e53e3e'};">${isIn ? '+' : '-'}${f.qty}</td>
+          <td>${f.afterQty}</td>
+          <td style="font-size:12px;">${f.remark || '-'}</td>
+        </tr>
+      `;
+    });
+    flowHtml += '</tbody></table></div>';
+  }
+  
+  const qty = getStock(productId, warehouseId);
+  const body = `
+    <div style="margin-bottom:12px;">
+      <h3 style="margin-bottom:4px;">${p.name} ${p.isCustom ? '<span class="tag tag-blue">定制</span>' : ''}</h3>
+      <p style="color:#718096;font-size:13px;">${w ? w.name : ''} · 每箱${p.perBox}台</p>
+    </div>
+    <div class="stock-row" style="background:#f7fafc;padding:10px;border-radius:8px;margin-bottom:12px;">
+      <span style="font-weight:600;">当前库存</span>
+      <span style="font-size:18px;font-weight:700;color:#2c5282;">${qty}台 · ${formatPack(qty, p.perBox)}</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-primary" onclick="exportFlowExcel()">导出Excel</button>
+      <button class="btn btn-sm btn-success" onclick="exportFlowImage()">导出图片</button>
+    </div>
+    <div class="filter-bar" style="margin-bottom:10px;">
+      <select id="flow-filter-type" onchange="updateFlowFilter()">
+        <option value="">全部类型</option>
+        <option value="in" ${filterType === 'in' ? 'selected' : ''}>入库</option>
+        <option value="out" ${filterType === 'out' ? 'selected' : ''}>出库</option>
+      </select>
+      <input type="date" id="flow-filter-date" value="${filterDate ? formatDate(filterDate) : ''}" onchange="updateFlowFilter()" style="flex:1;min-width:120px;">
+    </div>
+    <p style="font-weight:600;margin-bottom:8px;">出入库流水（共${flows.length}条）</p>
+    ${flowHtml}
+  `;
+  
+  showModal({
+    title: '出入库详情',
+    body,
+    showFooter: false,
+  });
+}
+
+function updateFlowFilter() {
+  flowDetailContext.filterType = document.getElementById('flow-filter-type').value;
+  const dateVal = document.getElementById('flow-filter-date').value;
+  flowDetailContext.filterDate = dateVal ? new Date(dateVal).getTime() : '';
+  renderFlowDetailModal();
+}
+
+function exportFlowExcel() {
+  const { productId, warehouseId } = flowDetailContext;
+  const p = getProductById(productId);
+  const w = getWarehouseById(warehouseId);
+  let flows = db.stockFlow.filter(f => f.productId === productId && f.warehouseId === warehouseId);
+  flows.sort((a, b) => b.createTime - a.createTime);
+  
+  const headers = ['日期时间', '类型', '数量', '结存', '备注', '操作人'];
+  const rows = flows.map(f => {
+    const isIn = f.type === 'in';
+    const typeText = {
+      'stockIn': '入库',
+      'revokeStockIn': '撤回入库',
+      'stockOut': '出库',
+      'revokeStockOut': '撤回出库',
+      'transferIn': '调拨入',
+      'transferOut': '调拨出',
+    }[f.orderType] || (isIn ? '入库' : '出库');
+    return [formatTime(f.createTime), typeText, (isIn ? '+' : '-') + f.qty, f.afterQty, f.remark || '-', f.createByName];
+  });
+  
+  exportCSV(`出入库详情_${p ? p.name : ''}_${w ? w.name : ''}.csv`, headers, rows);
+  addOperationLog('导出流水', `${p ? p.name : ''} ${w ? w.name : ''}`);
+}
+
+function exportFlowImage() {
+  const { productId, warehouseId } = flowDetailContext;
+  const p = getProductById(productId);
+  const w = getWarehouseById(warehouseId);
+  let flows = db.stockFlow.filter(f => f.productId === productId && f.warehouseId === warehouseId);
+  flows.sort((a, b) => b.createTime - a.createTime);
+  
+  const headers = ['日期时间', '类型', '数量', '结存'];
+  const rows = flows.slice(0, 50).map(f => {
+    const isIn = f.type === 'in';
+    const typeText = {
+      'stockIn': '入库',
+      'revokeStockIn': '撤回入库',
+      'stockOut': '出库',
+      'revokeStockOut': '撤回出库',
+      'transferIn': '调拨入',
+      'transferOut': '调拨出',
+    }[f.orderType] || (isIn ? '入库' : '出库');
+    return [formatTime(f.createTime), typeText, (isIn ? '+' : '-') + f.qty, f.afterQty];
+  });
+  
+  exportTableImage(`出入库详情_${p ? p.name : ''}.png`, `出入库详情 - ${p ? p.name : ''} (${w ? w.name : ''})`, headers, rows);
+  addOperationLog('导出流水图片', `${p ? p.name : ''} ${w ? w.name : ''}`);
+}
+
+// ==================== 入库录入 ====================
+let inDetails = [];
+
+function initStockInPage() {
+  // 初始化仓库下拉
+  const sel = document.getElementById('in-warehouse');
+  sel.innerHTML = '';
+  getActiveWarehouses().forEach(w => {
+    sel.innerHTML += `<option value="${w.id}">${w.name}${w.type === 'custom' ? ' (定制仓)' : ''}</option>`;
+  });
+  
+  inDetails = [];
+  renderInDetails();
+}
+
+function addInDetail(productId = '', qty = '') {
+  inDetails.push({ productId, qty: qty || '' });
+  renderInDetails();
+}
+
+function removeInDetail(index) {
+  inDetails.splice(index, 1);
+  renderInDetails();
+}
+
+function renderInDetails() {
+  const container = document.getElementById('in-details');
+  if (inDetails.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:#a0aec0;padding:20px;">暂无明细，点击上方按钮添加</div>';
+    return;
+  }
+  
+  let html = '';
+  inDetails.forEach((d, i) => {
+    const product = d.productId ? getProductById(d.productId) : null;
+    const warehouseId = document.getElementById('in-warehouse').value;
+    const currentStock = product ? getStock(product.id, warehouseId) : 0;
+    
+    html += `
+      <div class="detail-row">
+        <button class="del-btn" onclick="removeInDetail(${i})">×</button>
+        <div style="flex:1;">
+          <select class="form-select" style="margin-bottom:6px;" onchange="inDetails[${i}].productId=this.value;renderInDetails();">
+            <option value="">选择产品</option>
+            ${db.products.map(p => `<option value="${p.id}" ${d.productId === p.id ? 'selected' : ''}>${p.name}${p.isCustom ? ' (定制)' : ''}</option>`).join('')}
+          </select>
+          <div class="form-row">
+            <input type="number" class="form-input" placeholder="数量" value="${d.qty}" 
+              oninput="inDetails[${i}].qty=parseInt(this.value)||0" style="flex:1;">
+            ${product ? `<div style="flex:1;font-size:12px;color:#718096;display:flex;align-items:center;padding:0 8px;">
+              当前: ${currentStock} · ${formatPack(currentStock, product.perBox)}
+            </div>` : ''}
+          </div>
+          ${product ? `<div class="pack-info">每箱${product.perBox}台 · 入库${formatPack(d.qty || 0, product.perBox)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+function submitStockIn() {
+  const warehouseId = document.getElementById('in-warehouse').value;
+  const source = document.getElementById('in-source').value;
+  const remark = document.getElementById('in-remark').value.trim();
+  
+  const validDetails = inDetails.filter(d => d.productId && d.qty > 0);
+  if (validDetails.length === 0) {
+    showToast('请至少添加一条有效明细');
+    return;
+  }
+  
+  const btn = document.getElementById('submit-in-btn');
+  btn.disabled = true;
+  
+  const now = Date.now();
+  const orderId = genId('IN');
+  
+  const order = {
+    id: orderId,
+    warehouseId,
+    source,
+    remark,
+    details: validDetails,
+    status: 'normal',
+    createBy: currentUser.id,
+    createByName: currentUser.displayName,
+    createTime: now,
+  };
+  
+  db.stockInOrders.unshift(order);
+  
+  // 生成流水
+  validDetails.forEach(d => {
+    const beforeQty = getStock(d.productId, warehouseId);
+    const afterQty = beforeQty + d.qty;
+    db.stockFlow.push({
+      id: genId('F'),
+      productId: d.productId,
+      warehouseId,
+      type: 'in',
+      qty: d.qty,
+      beforeQty,
+      afterQty,
+      orderId,
+      orderType: 'stockIn',
+      remark: source,
+      createBy: currentUser.id,
+      createByName: currentUser.displayName,
+      createTime: now,
+    });
+  });
+  
+  addOperationLog('入库', `入库单 ${orderId}，${validDetails.length} 种产品`);
+  saveData();
+  showToast('入库成功');
+  btn.disabled = false;
+  
+  setTimeout(() => goPage('stock-in-list'), 800);
+}
+
+// ==================== 入库清单 ====================
+function initInListFilters() {
+  initWarehouseFilters();
+}
+
+function renderStockInList() {
+  const warehouseId = document.getElementById('in-list-filter-warehouse').value;
+  const status = document.getElementById('in-list-filter-status').value;
+  const productSearch = (document.getElementById('in-list-filter-product') || {}).value || '';
+  const dateStart = (document.getElementById('in-list-filter-date-start') || {}).value || '';
+  const dateEnd = (document.getElementById('in-list-filter-date-end') || {}).value || '';
+  const content = document.getElementById('stock-in-list-content');
+  
+  let orders = [...db.stockInOrders];
+  if (warehouseId) orders = orders.filter(o => o.warehouseId === warehouseId);
+  if (status) orders = orders.filter(o => o.status === status);
+  if (productSearch) {
+    const kw = productSearch.toLowerCase();
+    orders = orders.filter(o => o.details.some(d => {
+      const p = getProductById(d.productId);
+      return p && p.name.toLowerCase().indexOf(kw) >= 0;
+    }));
+  }
+  if (dateStart) {
+    const startTime = new Date(dateStart + 'T00:00:00').getTime();
+    orders = orders.filter(o => o.createTime >= startTime);
+  }
+  if (dateEnd) {
+    const endTime = new Date(dateEnd + 'T23:59:59').getTime();
+    orders = orders.filter(o => o.createTime <= endTime);
+  }
+  
+  if (orders.length === 0) {
+    content.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>暂无入库记录</div>';
+    return;
+  }
+  
+  let html = '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>仓库</th><th>产品名称</th><th>数量</th><th>来源</th><th>日期时间</th><th>备注</th><th>操作</th></tr></thead><tbody>';
+  orders.forEach(o => {
+    const warehouse = getWarehouseById(o.warehouseId);
+    const isRevoked = o.status === 'revoked';
+    const rowClass = isRevoked ? 'revoked-row' : '';
+    // 多个产品合并显示
+    const productNames = o.details.map(d => {
+      const p = getProductById(d.productId);
+      return p ? p.name : '-';
+    }).join('、');
+    const totalQty = o.details.reduce((s, d) => s + d.qty, 0);
+    const canRevoke = !isRevoked && (isAdmin() || o.createBy === currentUser.id);
+    
+    html += `<tr class="${rowClass}">`;
+    html += `<td>${warehouse ? warehouse.name : '-'}</td>`;
+    html += `<td>${productNames}</td>`;
+    html += `<td>${totalQty}</td>`;
+    html += `<td>${o.source}${isRevoked ? '（已撤销）' : ''}</td>`;
+    html += `<td style="white-space:nowrap;font-size:12px;">${formatTime(o.createTime)}</td>`;
+    html += `<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${o.remark || '-'}</td>`;
+    html += `<td>`;
+    if (canRevoke) {
+      html += `<button class="row-action-btn" style="background:#fed7d7;color:#c53030;" onclick="showStockInDetail('${o.id}')">撤回</button>`;
+    } else if (isRevoked) {
+      html += `<span style="font-size:12px;">已撤回</span>`;
+    } else {
+      html += `<button class="row-action-btn" style="background:#e2e8f0;color:#718096;" onclick="showStockInDetail('${o.id}')">详情</button>`;
+    }
+    html += `</td>`;
+    html += `</tr>`;
+  });
+  html += '</tbody></table></div></div>';
+  
+  content.innerHTML = html;
+}
+
+function showStockInDetail(orderId) {
+  const order = db.stockInOrders.find(o => o.id === orderId);
+  if (!order) return;
+  
+  const warehouse = getWarehouseById(order.warehouseId);
+  const isRevoked = order.status === 'revoked';
+  const canRevoke = !isRevoked && (isAdmin() || order.createBy === currentUser.id);
+  
+  let detailsHtml = '';
+  order.details.forEach(d => {
+    const p = getProductById(d.productId);
+    detailsHtml += `
+      <div class="stock-row">
+        <div>
+          <div class="stock-name">${p ? p.name : '-'}</div>
+          <div class="stock-info">${p ? p.spec : ''} · ${formatPack(d.qty, p ? p.perBox : 0)}</div>
+        </div>
+        <div class="stock-qty">+${d.qty}</div>
+      </div>
+    `;
+  });
+
+  let revokeHtml = '';
+  if (isRevoked) {
+    revokeHtml = `
+      <p style="margin-bottom:8px;"><strong>撤回原因：</strong>${order.revokeReason || '-'}</p>
+      <p style="margin-bottom:8px;"><strong>撤回时间：</strong>${order.revokeTime ? formatTime(order.revokeTime) : '-'}</p>
+      <p style="margin-bottom:8px;"><strong>撤回人：</strong>${order.revokeByName || '-'}</p>
+    `;
+  } else if (canRevoke) {
+    revokeHtml = `
+      <div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;">
+        <div class="form-group">
+          <label class="form-label">撤回原因</label>
+          <textarea class="form-textarea" id="revoke-in-reason" placeholder="请输入撤回原因"></textarea>
+        </div>
+      </div>
+    `;
+  }
+  
+  const body = `
+    <p style="margin-bottom:8px;"><strong>仓库：</strong>${warehouse ? warehouse.name : '-'}</p>
+    <p style="margin-bottom:8px;"><strong>来源：</strong>${order.source}</p>
+    <p style="margin-bottom:8px;"><strong>操作人：</strong>${order.createByName}</p>
+    <p style="margin-bottom:8px;"><strong>时间：</strong>${formatTime(order.createTime)}</p>
+    <p style="margin-bottom:8px;"><strong>备注：</strong>${order.remark || '-'}</p>
+    <div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;">
+      <p style="font-weight:600;margin-bottom:8px;">入库明细</p>
+      ${detailsHtml}
+    </div>
+    ${revokeHtml}
+  `;
+  
+  if (canRevoke) {
+    showModal({
+      title: '撤回入库单',
+      body,
+      confirmText: '确认撤回',
+      confirmType: 'btn-danger',
+      onConfirm: () => {
+        const reason = document.getElementById('revoke-in-reason').value.trim();
+        if (!reason) {
+          showToast('请填写撤回原因');
+          return;
+        }
+        revokeStockIn(orderId, reason);
+      }
+    });
+  } else {
+    showModal({
+      title: '入库单详情',
+      body,
+      showFooter: false,
+    });
+  }
+}
+
+function revokeStockIn(orderId, reason) {
+  const order = db.stockInOrders.find(o => o.id === orderId);
+  if (!order || order.status !== 'normal') return;
+  
+  // 检查库存是否充足（撤销入库 = 扣减库存）
+  for (const d of order.details) {
+    const currentStock = getStock(d.productId, order.warehouseId);
+    if (currentStock < d.qty) {
+      const p = getProductById(d.productId);
+      showToast(`撤销失败：${p ? p.name : '产品'}库存不足（当前${currentStock}台）`);
+      return;
+    }
+  }
+  
+  confirmDialog({
+    title: '确认撤回',
+    message: `确定要撤回此入库单吗？撤回后库存将原路返回（反向扣减）。\n撤回原因：${reason}`,
+    dangerText: '确认撤回',
+    onConfirm: () => {
+      const now = Date.now();
+      order.status = 'revoked';
+      order.revokeTime = now;
+      order.revokeBy = currentUser.id;
+      order.revokeByName = currentUser.displayName;
+      order.revokeReason = reason;
+      
+      // 生成反向流水（库存原路返回=扣减）
+      order.details.forEach(d => {
+        const beforeQty = getStock(d.productId, order.warehouseId);
+        const afterQty = beforeQty - d.qty;
+        db.stockFlow.push({
+          id: genId('F'),
+          productId: d.productId,
+          warehouseId: order.warehouseId,
+          type: 'out',
+          qty: d.qty,
+          beforeQty,
+          afterQty,
+          orderId: order.id,
+          orderType: 'revokeStockIn',
+          remark: '撤回入库：' + reason,
+          createBy: currentUser.id,
+          createByName: currentUser.displayName,
+          createTime: now,
+        });
+      });
+      
+      addOperationLog('撤回入库', `撤回入库单 ${orderId}，原因：${reason}`);
+      saveData();
+      showToast('已撤回');
+      closeModal();
+      renderStockInList();
+    }
+  });
+}
+
+// ==================== 出库录入 ====================
+let outDetails = [];
+
+function initStockOutPage() {
+  const sel = document.getElementById('out-warehouse');
+  sel.innerHTML = '';
+  getActiveWarehouses().forEach(w => {
+    sel.innerHTML += `<option value="${w.id}">${w.name}${w.type === 'custom' ? ' (定制仓)' : ''}</option>`;
+  });
+  
+  outDetails = [];
+  renderOutDetails();
+}
+
+function addOutDetail(productId = '', qty = '') {
+  outDetails.push({ productId, qty: qty || '' });
+  renderOutDetails();
+}
+
+function removeOutDetail(index) {
+  outDetails.splice(index, 1);
+  checkOutStock();
+  renderOutDetails();
+}
+
+function renderOutDetails() {
+  const container = document.getElementById('out-details');
+  if (outDetails.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:#a0aec0;padding:20px;">暂无明细，点击上方按钮添加</div>';
+    return;
+  }
+  
+  const warehouseId = document.getElementById('out-warehouse').value;
+  
+  let html = '';
+  outDetails.forEach((d, i) => {
+    const product = d.productId ? getProductById(d.productId) : null;
+    const currentStock = product ? getStock(product.id, warehouseId) : 0;
+    const qty = parseInt(d.qty) || 0;
+    const isOutOfStock = product && qty > currentStock;
+    
+    html += `
+      <div class="detail-row ${isOutOfStock ? 'row-out-of-stock' : ''}" style="${isOutOfStock ? 'background:#fff5f5;' : ''}">
+        <button class="del-btn" onclick="removeOutDetail(${i})">×</button>
+        <div style="flex:1;">
+          <select class="form-select" style="margin-bottom:6px;" onchange="outDetails[${i}].productId=this.value;checkOutStock();renderOutDetails();">
+            <option value="">选择产品</option>
+            ${db.products.map(p => `<option value="${p.id}" ${d.productId === p.id ? 'selected' : ''}>${p.name}${p.isCustom ? ' (定制)' : ''}</option>`).join('')}
+          </select>
+          <div class="form-row">
+            <input type="number" class="form-input" placeholder="出库数量" value="${d.qty}" 
+              oninput="outDetails[${i}].qty=parseInt(this.value)||0;checkOutStock();renderOutDetails();" style="flex:1;">
+            ${product ? `<div style="flex:1;font-size:12px;${isOutOfStock ? 'color:#e53e3e;' : 'color:#718096;'}display:flex;align-items:center;padding:0 8px;">
+              库存: ${currentStock} ${isOutOfStock ? '❌缺货' : '✓充足'}
+            </div>` : ''}
+          </div>
+          ${product ? `<div class="pack-info">每箱${product.perBox}台 · 出库${formatPack(qty, product.perBox)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+function checkOutStock() {
+  // 实时校验库存，更新按钮状态
+  const warehouseId = document.getElementById('out-warehouse').value;
+  const btn = document.getElementById('submit-out-btn');
+  
+  const validDetails = outDetails.filter(d => d.productId && d.qty > 0);
+  if (validDetails.length === 0) {
+    btn.disabled = false;
+    return;
+  }
+  
+  let hasShortage = false;
+  validDetails.forEach(d => {
+    const current = getStock(d.productId, warehouseId);
+    if (d.qty > current) hasShortage = true;
+  });
+  
+  btn.disabled = hasShortage;
+  renderOutDetails();
+}
+
+function submitStockOut() {
+  const warehouseId = document.getElementById('out-warehouse').value;
+  const destination = document.getElementById('out-destination').value.trim();
+  const channel = document.getElementById('out-channel').value;
+  const remark = document.getElementById('out-remark').value.trim();
+  
+  if (!destination) {
+    showToast('请填写出货去向');
+    return;
+  }
+  
+  const validDetails = outDetails.filter(d => d.productId && d.qty > 0);
+  if (validDetails.length === 0) {
+    showToast('请至少添加一条有效明细');
+    return;
+  }
+  
+  const warehouse = getWarehouseById(warehouseId);
+  
+  // 库存校验
+  for (const d of validDetails) {
+    const current = getStock(d.productId, warehouseId);
+    if (d.qty > current) {
+      const p = getProductById(d.productId);
+      showToast(`库存不足：${p ? p.name : '产品'} 当前${current}台`);
+      return;
+    }
+  }
+  
+  // 定制校验
+  const customProducts = validDetails.filter(d => {
+    const p = getProductById(d.productId);
+    return p && p.isCustom;
+  });
+  
+  // 定制产品从普通仓出库
+  if (warehouse.type === 'normal' && customProducts.length > 0 && !isAdmin()) {
+    showToast('定制产品不能从普通仓出库，请选择定制仓');
+    return;
+  }
+  
+  // 定制仓出货去向校验
+  if (warehouse.type === 'custom' && warehouse.bindCustomer) {
+    if (destination !== warehouse.bindCustomer && !isAdmin()) {
+      showToast(`定制仓绑定客户为「${warehouse.bindCustomer}」，出货去向不一致`);
+      return;
+    }
+  }
+  
+  // 如果是管理员且有定制校验问题，需要确认
+  const needForceConfirm = isAdmin() && (
+    (warehouse.type === 'normal' && customProducts.length > 0) ||
+    (warehouse.type === 'custom' && warehouse.bindCustomer && destination !== warehouse.bindCustomer)
+  );
+  
+  const doSubmit = () => {
+    const btn = document.getElementById('submit-out-btn');
+    btn.disabled = true;
+    
+    const now = Date.now();
+    const orderId = genId('OUT');
+    
+    const order = {
+      id: orderId,
+      warehouseId,
+      destination,
+      channel,
+      remark,
+      details: validDetails,
+      status: 'normal',
+      createBy: currentUser.id,
+      createByName: currentUser.displayName,
+      createTime: now,
+      forceOverride: needForceConfirm,
+    };
+    
+    db.stockOutOrders.unshift(order);
+    
+    // 生成流水
+    validDetails.forEach(d => {
+      const beforeQty = getStock(d.productId, warehouseId);
+      const afterQty = beforeQty - d.qty;
+      db.stockFlow.push({
+        id: genId('F'),
+        productId: d.productId,
+        warehouseId,
+        type: 'out',
+        qty: d.qty,
+        beforeQty,
+        afterQty,
+        orderId,
+        orderType: 'stockOut',
+        remark: destination,
+        createBy: currentUser.id,
+        createByName: currentUser.displayName,
+        createTime: now,
+      });
+    });
+    
+    addOperationLog('出库', `出库单 ${orderId}，${validDetails.length} 种产品，去向：${destination}`);
+    saveData();
+    showToast('出库成功');
+    btn.disabled = false;
+    
+    setTimeout(() => goPage('stock-out-list'), 800);
+  };
+  
+  if (needForceConfirm) {
+    confirmDialog({
+      title: '强制放行确认',
+      message: '检测到定制产品出库规则不匹配，作为管理员确认强制放行？',
+      dangerText: '确认强制放行',
+      onConfirm: doSubmit
+    });
+  } else {
+    doSubmit();
+  }
+}
+
+// ==================== 出库清单 ====================
+function initOutListFilters() {
+  initWarehouseFilters();
+}
+
+function renderStockOutList() {
+  const warehouseId = document.getElementById('out-list-filter-warehouse').value;
+  const status = document.getElementById('out-list-filter-status').value;
+  const productSearch = (document.getElementById('out-list-filter-product') || {}).value || '';
+  const dateStart = (document.getElementById('out-list-filter-date-start') || {}).value || '';
+  const dateEnd = (document.getElementById('out-list-filter-date-end') || {}).value || '';
+  const content = document.getElementById('stock-out-list-content');
+  
+  let orders = [...db.stockOutOrders];
+  if (warehouseId) orders = orders.filter(o => o.warehouseId === warehouseId);
+  if (status) orders = orders.filter(o => o.status === status);
+  if (productSearch) {
+    const kw = productSearch.toLowerCase();
+    orders = orders.filter(o => o.details.some(d => {
+      const p = getProductById(d.productId);
+      return p && p.name.toLowerCase().indexOf(kw) >= 0;
+    }));
+  }
+  if (dateStart) {
+    const startTime = new Date(dateStart + 'T00:00:00').getTime();
+    orders = orders.filter(o => o.createTime >= startTime);
+  }
+  if (dateEnd) {
+    const endTime = new Date(dateEnd + 'T23:59:59').getTime();
+    orders = orders.filter(o => o.createTime <= endTime);
+  }
+  
+  if (orders.length === 0) {
+    content.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>暂无出库记录</div>';
+    return;
+  }
+  
+  let html = '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>仓库</th><th>产品名称</th><th>数量</th><th>去向</th><th>日期时间</th><th>备注</th><th>操作</th></tr></thead><tbody>';
+  orders.forEach(o => {
+    const warehouse = getWarehouseById(o.warehouseId);
+    const isRevoked = o.status === 'revoked';
+    const rowClass = isRevoked ? 'revoked-row' : '';
+    const productNames = o.details.map(d => {
+      const p = getProductById(d.productId);
+      return p ? p.name : '-';
+    }).join('、');
+    const totalQty = o.details.reduce((s, d) => s + d.qty, 0);
+    const canRevoke = !isRevoked && (isAdmin() || o.createBy === currentUser.id);
+    
+    html += `<tr class="${rowClass}">`;
+    html += `<td>${warehouse ? warehouse.name : '-'}</td>`;
+    html += `<td>${productNames}</td>`;
+    html += `<td>${totalQty}</td>`;
+    html += `<td>${o.destination}${isRevoked ? '（已撤销）' : ''}</td>`;
+    html += `<td style="white-space:nowrap;font-size:12px;">${formatTime(o.createTime)}</td>`;
+    html += `<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${o.remark || '-'}</td>`;
+    html += `<td>`;
+    if (canRevoke) {
+      html += `<button class="row-action-btn" style="background:#fed7d7;color:#c53030;" onclick="showStockOutDetail('${o.id}')">撤回</button>`;
+    } else if (isRevoked) {
+      html += `<span style="font-size:12px;">已撤回</span>`;
+    } else {
+      html += `<button class="row-action-btn" style="background:#e2e8f0;color:#718096;" onclick="showStockOutDetail('${o.id}')">详情</button>`;
+    }
+    html += `</td>`;
+    html += `</tr>`;
+  });
+  html += '</tbody></table></div></div>';
+  
+  content.innerHTML = html;
+}
+
+function showStockOutDetail(orderId) {
+  const order = db.stockOutOrders.find(o => o.id === orderId);
+  if (!order) return;
+  
+  const warehouse = getWarehouseById(order.warehouseId);
+  const isRevoked = order.status === 'revoked';
+  const canRevoke = !isRevoked && (isAdmin() || order.createBy === currentUser.id);
+  
+  let detailsHtml = '';
+  order.details.forEach(d => {
+    const p = getProductById(d.productId);
+    detailsHtml += `
+      <div class="stock-row">
+        <div>
+          <div class="stock-name">${p ? p.name : '-'}</div>
+          <div class="stock-info">${p ? p.spec : ''} · ${formatPack(d.qty, p ? p.perBox : 0)}</div>
+        </div>
+        <div class="stock-qty" style="color:#e53e3e;">-${d.qty}</div>
+      </div>
+    `;
+  });
+
+  let revokeHtml = '';
+  if (isRevoked) {
+    revokeHtml = `
+      <p style="margin-bottom:8px;"><strong>撤回原因：</strong>${order.revokeReason || '-'}</p>
+      <p style="margin-bottom:8px;"><strong>撤回时间：</strong>${order.revokeTime ? formatTime(order.revokeTime) : '-'}</p>
+      <p style="margin-bottom:8px;"><strong>撤回人：</strong>${order.revokeByName || '-'}</p>
+    `;
+  } else if (canRevoke) {
+    revokeHtml = `
+      <div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;">
+        <div class="form-group">
+          <label class="form-label">撤回原因</label>
+          <textarea class="form-textarea" id="revoke-out-reason" placeholder="请输入撤回原因"></textarea>
+        </div>
+      </div>
+    `;
+  }
+  
+  const body = `
+    <p style="margin-bottom:8px;"><strong>仓库：</strong>${warehouse ? warehouse.name : '-'}</p>
+    <p style="margin-bottom:8px;"><strong>去向：</strong>${order.destination}</p>
+    <p style="margin-bottom:8px;"><strong>渠道：</strong>${order.channel || '-'}</p>
+    <p style="margin-bottom:8px;"><strong>操作人：</strong>${order.createByName}</p>
+    <p style="margin-bottom:8px;"><strong>时间：</strong>${formatTime(order.createTime)}</p>
+    <p style="margin-bottom:8px;"><strong>备注：</strong>${order.remark || '-'}</p>
+    ${order.forceOverride ? '<p style="margin-bottom:8px;color:#e53e3e;"><strong>⚠️ 管理员强制放行</strong></p>' : ''}
+    <div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;">
+      <p style="font-weight:600;margin-bottom:8px;">出库明细</p>
+      ${detailsHtml}
+    </div>
+    ${revokeHtml}
+  `;
+  
+  if (canRevoke) {
+    showModal({
+      title: '撤回出库单',
+      body,
+      confirmText: '确认撤回',
+      confirmType: 'btn-danger',
+      onConfirm: () => {
+        const reason = document.getElementById('revoke-out-reason').value.trim();
+        if (!reason) {
+          showToast('请填写撤回原因');
+          return;
+        }
+        revokeStockOut(orderId, reason);
+      }
+    });
+  } else {
+    showModal({
+      title: '出库单详情',
+      body,
+      showFooter: false,
+    });
+  }
+}
+
+function revokeStockOut(orderId, reason) {
+  const order = db.stockOutOrders.find(o => o.id === orderId);
+  if (!order || order.status !== 'normal') return;
+  
+  confirmDialog({
+    title: '确认撤回',
+    message: `确定要撤回此出库单吗？撤回后库存将原路返回（加回原仓库）。\n撤回原因：${reason}`,
+    dangerText: '确认撤回',
+    onConfirm: () => {
+      const now = Date.now();
+      order.status = 'revoked';
+      order.revokeTime = now;
+      order.revokeBy = currentUser.id;
+      order.revokeByName = currentUser.displayName;
+      order.revokeReason = reason;
+      
+      // 生成反向流水（库存原路返回=加回）
+      order.details.forEach(d => {
+        const beforeQty = getStock(d.productId, order.warehouseId);
+        const afterQty = beforeQty + d.qty;
+        db.stockFlow.push({
+          id: genId('F'),
+          productId: d.productId,
+          warehouseId: order.warehouseId,
+          type: 'in',
+          qty: d.qty,
+          beforeQty,
+          afterQty,
+          orderId: order.id,
+          orderType: 'revokeStockOut',
+          remark: '撤回出库：' + reason,
+          createBy: currentUser.id,
+          createByName: currentUser.displayName,
+          createTime: now,
+        });
+      });
+      
+      addOperationLog('撤回出库', `撤回出库单 ${orderId}，原因：${reason}`);
+      saveData();
+      showToast('已撤回');
+      closeModal();
+      renderStockOutList();
+    }
+  });
+}
+
+// ==================== 产品档案 ====================
+function renderProductList() {
+  const search = document.getElementById('product-search').value.toLowerCase();
+  const content = document.getElementById('product-list-content');
+  
+  let products = [...db.products];
+  if (search) {
+    products = products.filter(p => 
+      p.name.toLowerCase().includes(search) || 
+      p.code.toLowerCase().includes(search)
+    );
+  }
+  
+  if (products.length === 0) {
+    content.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div>暂无产品</div>';
+    return;
+  }
+  
+  let html = '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>产品名称</th><th>编码</th><th>规格</th><th>每箱</th><th>总库存</th><th>装箱</th><th>操作</th></tr></thead><tbody>';
+  products.forEach(p => {
+    const totalStock = Object.values(getProductStockAllWarehouses(p.id)).reduce((a, b) => a + b, 0);
+    const isLow = totalStock < p.safetyStock;
+    html += `
+      <tr>
+        <td onclick="showProductDetail('${p.id}')" style="cursor:pointer;font-weight:600;">${p.name}${p.isCustom ? ' <span class="tag tag-blue">定制</span>' : ''}</td>
+        <td style="font-size:12px;">${p.code}</td>
+        <td style="font-size:12px;">${p.spec || '-'}</td>
+        <td style="text-align:center;">${p.perBox}</td>
+        <td style="font-weight:600;color:${isLow ? '#e53e3e' : '#2c5282'};">${totalStock}</td>
+        <td style="font-size:12px;color:#718096;">${formatPack(totalStock, p.perBox)}</td>
+        <td>
+          <button class="row-action-btn" style="background:#bee3f8;color:#2a4365;" onclick="editProduct('${p.id}')">编辑</button>
+          <button class="row-action-btn" style="background:#fed7d7;color:#c53030;" onclick="deleteProduct('${p.id}')">删除</button>
+        </td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table></div></div>';
+  
+  content.innerHTML = html;
+}
+
+function showProductDetail(productId) {
+  const p = getProductById(productId);
+  if (!p) return;
+  
+  const stocks = getProductStockAllWarehouses(p.id);
+  const totalStock = Object.values(stocks).reduce((a, b) => a + b, 0);
+  
+  let warehouseHtml = '';
+  db.warehouses.forEach(w => {
+    const qty = stocks[w.id] || 0;
+    warehouseHtml += `
+      <div class="stock-row">
+        <span>${w.name}${w.type === 'custom' ? ' (定制仓)' : ''}</span>
+        <span style="font-weight:600;">${qty}台 · ${formatPack(qty, p.perBox)}</span>
+      </div>
+    `;
+  });
+  
+  // 流水记录
+  const flows = db.stockFlow.filter(f => f.productId === productId).sort((a, b) => b.createTime - a.createTime);
+  
+  let flowHtml = '';
+  if (flows.length === 0) {
+    flowHtml = '<div style="text-align:center;color:#a0aec0;padding:16px;">暂无流水记录</div>';
+  } else {
+    flowHtml = '<div class="table-container"><table class="data-table"><thead><tr><th>日期时间</th><th>仓库</th><th>类型</th><th>数量</th><th>结存</th></tr></thead><tbody>';
+    flows.slice(0, 20).forEach(f => {
+      const fw = getWarehouseById(f.warehouseId);
+      const isIn = f.type === 'in';
+      const typeText = {
+        'stockIn': '入库',
+        'revokeStockIn': '撤回入库',
+        'stockOut': '出库',
+        'revokeStockOut': '撤回出库',
+        'transferIn': '调拨入',
+        'transferOut': '调拨出',
+      }[f.orderType] || (isIn ? '入库' : '出库');
+      flowHtml += `
+        <tr>
+          <td style="white-space:nowrap;font-size:12px;">${formatTime(f.createTime)}</td>
+          <td style="font-size:12px;">${fw ? fw.name : '-'}</td>
+          <td><span class="tag ${isIn ? 'tag-green' : 'tag-red'}">${typeText}</span></td>
+          <td style="font-weight:600;color:${isIn ? '#38a169' : '#e53e3e'};">${isIn ? '+' : '-'}${f.qty}</td>
+          <td>${f.afterQty}</td>
+        </tr>
+      `;
+    });
+    flowHtml += '</tbody></table></div>';
+  }
+  
+  const body = `
+    <div style="margin-bottom:12px;">
+      <h3 style="margin-bottom:4px;">${p.name} ${p.isCustom ? '<span class="tag tag-blue">定制</span>' : ''}</h3>
+      <p style="color:#718096;font-size:13px;">编码：${p.code} · 规格：${p.spec}</p>
+    </div>
+    <div class="stock-row" style="background:#f7fafc;padding:10px;border-radius:8px;margin-bottom:12px;">
+      <span style="font-weight:600;">当前总库存</span>
+      <span style="font-size:18px;font-weight:700;color:#2c5282;">${totalStock}台</span>
+    </div>
+    <p style="font-size:13px;color:#718096;margin-bottom:4px;">每箱台数：${p.perBox} · 安全库存：${p.safetyStock}</p>
+    <p style="font-size:13px;color:#718096;margin-bottom:12px;">装箱：${formatPack(totalStock, p.perBox)}</p>
+    
+    <div style="margin-bottom:12px;">
+      <p style="font-weight:600;margin-bottom:8px;">各仓库分布</p>
+      ${warehouseHtml}
+    </div>
+    
+    <div>
+      <p style="font-weight:600;margin-bottom:8px;">库存流水（最近20条）</p>
+      ${flowHtml}
+    </div>
+    ${isAdmin() ? `
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="closeModal();editProduct('${p.id}')">编辑产品</button>
+      <button class="btn btn-danger" style="flex:1;" onclick="closeModal();deleteProduct('${p.id}')">删除产品</button>
+    </div>
+    ` : ''}
+  `;
+  
+  showModal({
+    title: '产品详情',
+    body,
+    showFooter: false,
+  });
+}
+
+function showAddProductModal() {
+  if (!isAdmin()) {
+    showToast('无权限');
+    return;
+  }
+  
+  const body = `
+    <div class="form-group">
+      <label class="form-label">产品编码</label>
+      <input type="text" class="form-input" id="new-product-code" placeholder="如 P004">
+    </div>
+    <div class="form-group">
+      <label class="form-label">产品名称</label>
+      <input type="text" class="form-input" id="new-product-name" placeholder="请输入产品名称">
+    </div>
+    <div class="form-group">
+      <label class="form-label">规格</label>
+      <input type="text" class="form-input" id="new-product-spec" placeholder="选填">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">每箱台数</label>
+        <input type="number" class="form-input" id="new-product-perbox" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">安全库存</label>
+        <input type="number" class="form-input" id="new-product-safety" value="0" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="new-product-custom">
+        <span>定制产品</span>
+      </label>
+    </div>
+  `;
+  
+  showModal({
+    title: '新增产品',
+    body,
+    confirmText: '保存',
+    onConfirm: () => {
+      const code = document.getElementById('new-product-code').value.trim();
+      const name = document.getElementById('new-product-name').value.trim();
+      const spec = document.getElementById('new-product-spec').value.trim();
+      const perBox = parseInt(document.getElementById('new-product-perbox').value) || 1;
+      const safetyStock = parseInt(document.getElementById('new-product-safety').value) || 0;
+      const isCustom = document.getElementById('new-product-custom').checked;
+      
+      if (!code || !name) {
+        showToast('请填写编码和名称');
+        return;
+      }
+      
+      db.products.push({
+        id: genId('P'),
+        code,
+        name,
+        spec,
+        perBox,
+        safetyStock,
+        isCustom,
+        createTime: Date.now(),
+      });
+      
+      addOperationLog('新增产品', `${name} (${code})`);
+      saveData();
+      closeModal();
+      renderProductList();
+      showToast('添加成功');
+    }
+  });
+}
+
+function editProduct(productId) {
+  if (!isAdmin()) {
+    showToast('无权限');
+    return;
+  }
+  const p = getProductById(productId);
+  if (!p) return;
+
+  const body = `
+    <div class="form-group">
+      <label class="form-label">产品编码</label>
+      <input type="text" class="form-input" id="edit-product-code" value="${p.code}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">产品名称</label>
+      <input type="text" class="form-input" id="edit-product-name" value="${p.name}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">规格</label>
+      <input type="text" class="form-input" id="edit-product-spec" value="${p.spec || ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">每箱台数</label>
+        <input type="number" class="form-input" id="edit-product-perbox" value="${p.perBox}" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">安全库存</label>
+        <input type="number" class="form-input" id="edit-product-safety" value="${p.safetyStock}" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="edit-product-custom" ${p.isCustom ? 'checked' : ''}>
+        <span>定制产品</span>
+      </label>
+    </div>
+  `;
+
+  showModal({
+    title: '编辑产品',
+    body,
+    confirmText: '保存',
+    onConfirm: () => {
+      const code = document.getElementById('edit-product-code').value.trim();
+      const name = document.getElementById('edit-product-name').value.trim();
+      const spec = document.getElementById('edit-product-spec').value.trim();
+      const perBox = parseInt(document.getElementById('edit-product-perbox').value) || 1;
+      const safetyStock = parseInt(document.getElementById('edit-product-safety').value) || 0;
+      const isCustom = document.getElementById('edit-product-custom').checked;
+
+      if (!code || !name) {
+        showToast('请填写编码和名称');
+        return;
+      }
+
+      p.code = code;
+      p.name = name;
+      p.spec = spec;
+      p.perBox = perBox;
+      p.safetyStock = safetyStock;
+      p.isCustom = isCustom;
+
+      addOperationLog('修改产品', `${name} (${code})`);
+      saveData();
+      closeModal();
+      renderProductList();
+      showToast('保存成功');
+    }
+  });
+}
+
+function deleteProduct(productId) {
+  if (!isAdmin()) {
+    showToast('无权限');
+    return;
+  }
+  const p = getProductById(productId);
+  if (!p) return;
+
+  // 检查库存是否为0
+  const totalStock = Object.values(getProductStockAllWarehouses(p.id)).reduce((a, b) => a + b, 0);
+  if (totalStock !== 0) {
+    showModal({
+      title: '无法删除',
+      body: `<p style="color:#e53e3e;">产品「${p.name}」当前库存为 ${totalStock} 台，不能删除！</p>
+        <p style="font-size:13px;color:#718096;margin-top:8px;">请先清空所有仓库中该产品的库存（出库或调拨）后再删除。</p>`,
+      showFooter: true,
+      confirmText: '知道了',
+      confirmType: 'btn-default',
+      onConfirm: closeModal
+    });
+    return;
+  }
+
+  confirmDialog({
+    title: '删除产品',
+    message: `确定要删除产品「${p.name}」吗？删除后不可恢复，历史流水记录仍保留。`,
+    dangerText: '确认删除',
+    onConfirm: () => {
+      db.products = db.products.filter(item => item.id !== productId);
+      addOperationLog('删除产品', `${p.name} (${p.code})`);
+      saveData();
+      renderProductList();
+      showToast('已删除');
+    }
+  });
+}
+
+// 产品档案导出Excel
+function exportProductExcel() {
+  var search = (document.getElementById('product-search') || {}).value || '';
+  var products = db.products.slice();
+  if (search) {
+    var kw = search.toLowerCase();
+    products = products.filter(function(p) {
+      return p.name.toLowerCase().indexOf(kw) >= 0 || p.code.toLowerCase().indexOf(kw) >= 0;
+    });
+  }
+  if (products.length === 0) { showToast('暂无数据'); return; }
+  var headers = ['产品名称', '编码', '规格', '每箱台数', '安全库存', '是否定制'];
+  var rows = products.map(function(p) {
+    return [p.name, p.code, p.spec || '-', p.perBox, p.safetyStock, p.isCustom ? '是' : '否'];
+  });
+  exportCSV('产品档案_' + formatDate(Date.now()).replace(/-/g, '') + '.csv', headers, rows);
+  addOperationLog('导出产品档案', 'Excel格式');
+}
+
+// 产品档案导出图片
+function exportProductImage() {
+  var search = (document.getElementById('product-search') || {}).value || '';
+  var products = db.products.slice();
+  if (search) {
+    var kw = search.toLowerCase();
+    products = products.filter(function(p) {
+      return p.name.toLowerCase().indexOf(kw) >= 0 || p.code.toLowerCase().indexOf(kw) >= 0;
+    });
+  }
+  if (products.length === 0) { showToast('暂无数据'); return; }
+  var headers = ['产品名称', '编码', '规格', '每箱', '安全库存'];
+  var rows = products.slice(0, 50).map(function(p) {
+    return [p.name, p.code, p.spec || '-', p.perBox, p.safetyStock];
+  });
+  exportTableImage('产品档案_' + formatDate(Date.now()).replace(/-/g, '') + '.png', '阿平仓库管理 - 产品档案', headers, rows);
+  addOperationLog('导出产品档案', '图片格式');
+}
+
+// 产品档案导入CSV
+function importProductCSV(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var text = e.target.result;
+      var lines = text.split(/\r?\n/).filter(function(l) { return l.trim().length > 0; });
+      if (lines.length <= 1) { showToast('文件内容为空'); return; }
+      
+      var imported = 0;
+      var updated = 0;
+      for (var i = 1; i < lines.length; i++) {
+        var cols = parseCSVLine(lines[i]);
+        if (cols.length < 2) continue;
+        var name = (cols[0] || '').trim();
+        var code = (cols[1] || '').trim();
+        var spec = (cols[2] || '').trim();
+        var perBox = parseInt(cols[3]) || 1;
+        var safetyStock = parseInt(cols[4]) || 0;
+        var isCustom = cols[5] === '是' || cols[5] === 'true' || cols[5] === '1';
+        
+        if (!name) continue;
+        
+        // 按编码或名称匹配，存在则更新，不存在则新增
+        var existing = db.products.find(function(p) {
+          return (code && p.code === code) || p.name === name;
+        });
+        
+        if (existing) {
+          existing.name = name;
+          if (code) existing.code = code;
+          if (spec) existing.spec = spec;
+          if (perBox > 0) existing.perBox = perBox;
+          if (safetyStock >= 0) existing.safetyStock = safetyStock;
+          existing.isCustom = isCustom;
+          updated++;
+        } else {
+          db.products.push({
+            id: genId('P'),
+            name: name,
+            code: code || ('P' + String(Date.now()).slice(-6) + i),
+            spec: spec || '',
+            perBox: perBox || 1,
+            safetyStock: safetyStock || 0,
+            isCustom: isCustom,
+            createTime: Date.now(),
+            createBy: currentUser.id,
+          });
+          imported++;
+        }
+      }
+      
+      addOperationLog('导入产品档案', '新增' + imported + '条，更新' + updated + '条');
+      saveData();
+      renderProductList();
+      showToast('导入成功：新增' + imported + '条，更新' + updated + '条');
+    } catch (err) {
+      showToast('导入失败：' + err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ==================== 识图功能 ====================
+let ocrResultList = [];
+let ocrImageDataUrl = null;
+let ocrCurrentMode = 'image';
+
+// 初始化识图页面
+function initOcrPage() {
+  ocrReset();
+}
+
+// 切换识别方式Tab
+function ocrSwitchTab(tab) {
+  ocrCurrentMode = tab;
+  var tabImg = document.getElementById('ocr-tab-image');
+  var tabTxt = document.getElementById('ocr-tab-text');
+  var modeImg = document.getElementById('ocr-image-mode');
+  var modeTxt = document.getElementById('ocr-text-mode');
+  if (tab === 'image') {
+    tabImg.className = 'btn btn-primary'; tabImg.style.minHeight = '44px';
+    tabTxt.className = 'btn btn-default'; tabTxt.style.minHeight = '44px';
+    modeImg.style.display = 'block';
+    modeTxt.style.display = 'none';
+  } else {
+    tabImg.className = 'btn btn-default'; tabImg.style.minHeight = '44px';
+    tabTxt.className = 'btn btn-success'; tabTxt.style.minHeight = '44px';
+    modeImg.style.display = 'none';
+    modeTxt.style.display = 'block';
+  }
+}
+
+// 选择图片 - 动态创建file input
+function ocrPickImage() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.position = 'fixed';
+  input.style.left = '-9999px';
+  input.style.top = '0';
+  document.body.appendChild(input);
+  input.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) { document.body.removeChild(input); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      ocrImageDataUrl = ev.target.result;
+      var preview = document.getElementById('ocr-img-preview');
+      if (preview) preview.src = ocrImageDataUrl;
+      document.getElementById('ocr-image-preview-card').style.display = 'block';
+      document.body.removeChild(input);
+    };
+    reader.onerror = function() { showToast('图片读取失败'); document.body.removeChild(input); };
+    reader.readAsDataURL(file);
+  });
+  setTimeout(function() { input.click(); }, 0);
+}
+
+// 清除图片重新选择
+function ocrClearImage() {
+  ocrImageDataUrl = null;
+  document.getElementById('ocr-image-preview-card').style.display = 'none';
+}
+
+// 重置
+function ocrReset() {
+  ocrResultList = [];
+  ocrImageDataUrl = null;
+  ocrCurrentMode = 'image';
+  ocrSwitchTab('image');
+  var textInput = document.getElementById('ocr-text-input');
+  if (textInput) textInput.value = '';
+  document.getElementById('ocr-image-preview-card').style.display = 'none';
+  document.getElementById('ocr-result-card').style.display = 'none';
+  document.getElementById('ocr-action-card').style.display = 'none';
+}
+
+// 获取默认仓库ID
+function ocrGetCurrentWhId() {
+  var wh = db.warehouses.find(function(w) { return w.isDefault; }) || db.warehouses[0];
+  return wh ? wh.id : '';
+}
+
+// 从文字中解析订单行
+function ocrParseText(text) {
+  var lines = text.split(/[\n\r]+/).filter(function(l) { return l.trim().length > 0; });
+  var results = [];
+  lines.forEach(function(line) {
+    line = line.trim();
+    // 尝试匹配"产品名 数量"、"产品名x数量"、"产品名：数量"等格式
+    var match = line.match(/^(.+?)[\s\*xX×:：]+(\d+)/);
+    if (match) {
+      var name = match[1].replace(/[（）\(\)]/g, '').trim();
+      var qty = parseInt(match[2]) || 0;
+      if (name && qty > 0) {
+        results.push({ ocrName: name, qty: qty });
+      }
+    } else {
+      // 如果整行看起来像纯数字跳过
+      if (!/^\d+$/.test(line) && line.length > 0) {
+        results.push({ ocrName: line, qty: 1 });
+      }
+    }
+  });
+  return results;
+}
+
+// 模糊匹配产品 - 返回 {product, score}
+function ocrMatchProduct(ocrName) {
+  var matchedProduct = null;
+  var bestScore = 0;
+  var bestMatchedName = '';
+  db.products.forEach(function(p) {
+    var result = ocrFuzzyMatch(ocrName, p.name);
+    if (result.score > bestScore) {
+      bestScore = result.score;
+      matchedProduct = p;
+      bestMatchedName = result.matchedName;
+    }
+  });
+  return { product: matchedProduct, score: bestScore, matchedName: bestMatchedName };
+}
+
+// 执行识别
+function ocrDoRecognize(mode) {
+  ocrMode = mode;
+  
+  var data = [];
+  if (mode === 'text') {
+    var text = (document.getElementById('ocr-text-input') || {}).value || '';
+    if (!text.trim()) { showToast('请先粘贴订单文字'); return; }
+    data = ocrParseText(text);
+    if (data.length === 0) { showToast('未能识别出产品，请检查格式'); return; }
+    showToast('正在识别...');
+  } else {
+    if (!ocrImageDataUrl) { showToast('请先选择图片'); return; }
+    showToast('正在识别图片...');
+    // 模拟图片识别数据
+    data = [
+      { ocrName: '通用产品A', qty: 40 },
+      { ocrName: '通用产品B', qty: 500 },
+      { ocrName: '定制产品X', qty: 200 },
+      { ocrName: '测试产品C', qty: 100 },
+    ];
+  }
+  
+  setTimeout(function() {
+    ocrResultList = data.map(function(item, i) {
+      var mr = ocrMatchProduct(item.ocrName);
+      // 相似度>=0.3才自动选中，否则留空让用户手动选
+      var autoMatched = (mr.score >= 0.3 && mr.product);
+      return {
+        id: i + 1,
+        ocrName: item.ocrName,
+        productId: autoMatched ? mr.product.id : '',
+        matchScore: mr.score,
+        matchedName: autoMatched ? mr.matchedName : '',
+        qty: item.qty,
+        selected: true
+      };
+    });
+    document.getElementById('ocr-result-card').style.display = 'block';
+    document.getElementById('ocr-action-card').style.display = 'block';
+    ocrRenderResults();
+    showToast('识别完成，共 ' + ocrResultList.length + ' 项');
+  }, mode === 'image' ? 800 : 400);
+}
+
+// 模糊匹配 - 综合相似度算法
+// 返回 {score: 0~1, matchedName: 匹配到的产品名称}
+function ocrFuzzyMatch(ocrText, productName) {
+  if (!ocrText || !productName) return { score: 0, matchedName: '' };
+  var o = ocrText.toLowerCase().trim();
+  var p = productName.toLowerCase().trim();
+  
+  // 1. 完全匹配
+  if (o === p) return { score: 1, matchedName: productName };
+  
+  var score = 0;
+  
+  // 2. 包含匹配
+  if (p.indexOf(o) >= 0 || o.indexOf(p) >= 0) {
+    // 包含关系，得分基于长度比
+    var longStr = o.length > p.length ? o : p;
+    var shortStr = o.length > p.length ? p : o;
+    score = Math.max(score, shortStr.length / longStr.length * 0.85);
+  }
+  
+  // 3. 编辑距离相似度 (Levenshtein-based)
+  var distScore = 1 - levenshteinDistance(o, p) / Math.max(o.length, p.length);
+  if (distScore > 0) score = Math.max(score, distScore);
+  
+  // 4. 分词重叠匹配 - 拆分关键词计算重叠率
+  var oTokens = o.split(/[\s\-_,，。、（）()]+/).filter(function(t) { return t.length > 0; });
+  var pTokens = p.split(/[\s\-_,，。、（）()]+/).filter(function(t) { return t.length > 0; });
+  if (oTokens.length > 0 && pTokens.length > 0) {
+    var matchCount = 0;
+    oTokens.forEach(function(ot) {
+      pTokens.forEach(function(pt) {
+        if (ot === pt || ot.indexOf(pt) >= 0 || pt.indexOf(ot) >= 0) matchCount++;
+      });
+    });
+    var tokenScore = matchCount / Math.max(oTokens.length, pTokens.length);
+    score = Math.max(score, tokenScore * 0.8);
+  }
+  
+  // 5. 部分字符匹配 - 识别名称中的关键字符在产品名中出现的比例
+  if (o.length >= 2 && p.length >= 2) {
+    var charMatch = 0;
+    for (var ci = 0; ci < o.length; ci++) {
+      if (p.indexOf(o.charAt(ci)) >= 0) charMatch++;
+    }
+    var charScore = charMatch / o.length;
+    if (charScore > 0.5) score = Math.max(score, charScore * 0.6);
+  }
+  
+  return { score: Math.min(score, 1), matchedName: productName };
+}
+
+// 编辑距离算法
+function levenshteinDistance(s1, s2) {
+  if (s1.length === 0) return s2.length;
+  if (s2.length === 0) return s1.length;
+  var matrix = [];
+  for (var i = 0; i <= s2.length; i++) matrix[i] = [i];
+  for (var j = 0; j <= s1.length; j++) matrix[0][j] = j;
+  for (var ii = 1; ii <= s2.length; ii++) {
+    for (var jj = 1; jj <= s1.length; jj++) {
+      if (s2.charAt(ii - 1) === s1.charAt(jj - 1)) {
+        matrix[ii][jj] = matrix[ii - 1][jj - 1];
+      } else {
+        matrix[ii][jj] = Math.min(matrix[ii - 1][jj - 1] + 1, matrix[ii - 1][jj] + 1, matrix[ii][jj - 1] + 1);
+      }
+    }
+  }
+  return matrix[s2.length][s1.length];
+}
+
+// 全选/全不选
+function ocrSelectAll(checked) {
+  ocrResultList.forEach(function(r) { r.selected = checked; });
+  ocrRenderResults();
+}
+
+// 渲染识别结果
+function ocrRenderResults() {
+  var container = document.getElementById('ocr-result-table');
+  var whId = ocrGetCurrentWhId();
+  var totalQty = 0;
+  var totalBoxes = 0;
+  var totalRemain = 0;
+  var selectedCount = 0;
+  
+  if (ocrResultList.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:#a0aec0;padding:16px;">暂无识别结果</div>';
+    document.getElementById('ocr-stats-bar').textContent = '共 0 种 · 总数量 0';
+    return;
+  }
+  
+  // 表格 - 每列都给足够宽度，整体可左右滑动
+  var html = '<table class="data-table" style="min-width:700px;border-collapse:collapse;"><thead><tr style="background:#f0f7ff;">';
+  html += '<th style="width:36px;padding:6px;text-align:center;border:1px solid #e2e8f0;">选</th>';
+  html += '<th style="width:40px;padding:6px;text-align:center;border:1px solid #e2e8f0;">序号</th>';
+  html += '<th style="min-width:140px;padding:6px;border:1px solid #e2e8f0;">识别名称</th>';
+  html += '<th style="min-width:140px;padding:6px;border:1px solid #e2e8f0;">匹配名称</th>';
+  html += '<th style="min-width:80px;padding:6px;border:1px solid #e2e8f0;">相似度</th>';
+  html += '<th style="min-width:70px;padding:6px;border:1px solid #e2e8f0;">数量</th>';
+  html += '<th style="min-width:80px;padding:6px;border:1px solid #e2e8f0;">装箱</th>';
+  html += '<th style="min-width:100px;padding:6px;border:1px solid #e2e8f0;">库存校验</th>';
+  html += '</tr></thead><tbody>';
+  
+  ocrResultList.forEach(function(r, i) {
+    var product = r.productId ? getProductById(r.productId) : null;
+    var packText = '-';
+    if (product && product.perBox > 0) {
+      var boxes = Math.floor(r.qty / product.perBox);
+      var remain = r.qty % product.perBox;
+      packText = boxes + '箱' + (remain > 0 ? remain + '台' : '');
+      totalBoxes += boxes;
+      totalRemain += remain;
+    }
+    
+    var stockInfo = '<span style="color:#a0aec0;">未匹配</span>';
+    if (product && whId) {
+      var stock = getStock(product.id, whId);
+      if (r.qty <= stock) {
+        stockInfo = '<span style="color:#38a169;font-weight:600;">充足(' + stock + ')</span>';
+      } else {
+        stockInfo = '<span style="color:#e53e3e;font-weight:600;">缺货(' + stock + ',缺' + (r.qty - stock) + ')</span>';
+      }
+    } else if (product) {
+      stockInfo = '<span style="color:#3182ce;font-weight:600;">可入库</span>';
+    }
+    
+    totalQty += r.qty;
+    if (r.selected) selectedCount++;
+    
+    // 相似度显示
+    var scorePercent = Math.round((r.matchScore || 0) * 100);
+    var scoreColor = scorePercent >= 80 ? '#38a169' : (scorePercent >= 50 ? '#d69e2e' : '#a0aec0');
+    var scoreText = r.productId ? '<span style="color:' + scoreColor + ';font-weight:600;">' + scorePercent + '%</span>' : '<span style="color:#cbd5e0;">-</span>';
+    
+    // 匹配产品下拉 - 自动选中，显示完整产品名称
+    var matchSelect = '<select style="width:100%;font-size:12px;padding:4px 6px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;" onchange="ocrOnProductChange(' + i + ', this.value)"><option value="">未匹配</option>' +
+      db.products.map(function(p) { return '<option value="' + p.id + '"' + (r.productId === p.id ? ' selected' : '') + '>' + escapeHtml(p.name) + '</option>'; }).join('') + '</select>';
+    
+    var rowStyle = r.selected ? '' : 'opacity:0.4;';
+    var bgStyle = i % 2 === 0 ? 'background:#fff;' : 'background:#f7fafc;';
+    html += '<tr style="' + rowStyle + bgStyle + '">';
+    html += '<td style="padding:6px;text-align:center;border:1px solid #e2e8f0;"><input type="checkbox" ' + (r.selected ? 'checked' : '') + ' onchange="ocrResultList[' + i + '].selected=this.checked;ocrRenderResults();"></td>';
+    html += '<td style="padding:6px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#718096;">' + (i + 1) + '</td>';
+    // 识别名称 - 纯文字显示，不截断，自动换行
+    html += '<td style="padding:6px;border:1px solid #e2e8f0;font-size:13px;color:#2d3748;word-break:break-all;white-space:normal;line-height:1.4;">' + escapeHtml(r.ocrName) + '</td>';
+    // 匹配名称 - 下拉框，自动选中
+    html += '<td style="padding:4px 6px;border:1px solid #e2e8f0;">' + matchSelect + '</td>';
+    html += '<td style="padding:6px;text-align:center;border:1px solid #e2e8f0;font-size:13px;white-space:nowrap;">' + scoreText + '</td>';
+    // 数量 - 可编辑
+    html += '<td style="padding:4px 6px;border:1px solid #e2e8f0;"><input type="number" value="' + r.qty + '" style="width:60px;border:1px solid #cbd5e0;border-radius:6px;padding:4px 6px;font-size:13px;text-align:center;" onchange="ocrResultList[' + i + '].qty=parseInt(this.value)||0;ocrRenderResults();"></td>';
+    html += '<td style="padding:6px;border:1px solid #e2e8f0;font-size:12px;color:#718096;white-space:nowrap;">' + packText + '</td>';
+    html += '<td style="padding:6px;border:1px solid #e2e8f0;font-size:12px;white-space:nowrap;">' + stockInfo + '</td>';
+    html += '</tr>';
+  });
+  
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  
+  // 更新统计栏
+  var statsBar = document.getElementById('ocr-stats-bar');
+  var statsText = '共 ' + ocrResultList.length + ' 种 · 总数量 ' + totalQty;
+  if (totalBoxes > 0 || totalRemain > 0) {
+    statsText += ' · ' + totalBoxes + '箱' + (totalRemain > 0 ? totalRemain + '台' : '');
+  }
+  if (selectedCount < ocrResultList.length) {
+    statsText += ' · 已选' + selectedCount + '项';
+  }
+  statsBar.textContent = statsText;
+}
+
+// 当用户在结果中手动切换匹配产品时
+function ocrOnProductChange(idx, productId) {
+  ocrResultList[idx].productId = productId;
+  if (productId) {
+    var p = getProductById(productId);
+    if (p) {
+      // 同步更新相似度
+      var result = ocrFuzzyMatch(ocrResultList[idx].ocrName, p.name);
+      ocrResultList[idx].matchScore = result.score;
+      ocrResultList[idx].matchedName = p.name;
+    }
+  } else {
+    ocrResultList[idx].matchScore = 0;
+    ocrResultList[idx].matchedName = '';
+  }
+  ocrRenderResults();
+}
+
+// HTML转义
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// 导出CSV - 导出已勾选的
+function ocrExportCSV() {
+  var list = ocrResultList.filter(function(r) { return r.selected; });
+  if (list.length === 0) { showToast('请先勾选要导出的记录'); return; }
+  var whId = ocrGetCurrentWhId();
+  var headers = ['识别名称', '匹配产品', '相似度', '数量', '装箱', '库存校验'];
+  var rows = list.map(function(r) {
+    var product = r.productId ? getProductById(r.productId) : null;
+    var packText = product ? formatPack(r.qty, product.perBox) : '-';
+    var stockText = '未匹配';
+    if (product && whId) {
+      var stock = getStock(product.id, whId);
+      stockText = r.qty <= stock ? '充足(' + stock + ')' : '缺货(' + stock + ',缺' + (r.qty - stock) + ')';
+    }
+    var scorePercent = Math.round((r.matchScore || 0) * 100) + '%';
+    return [r.ocrName, product ? product.name : '未匹配', scorePercent, r.qty, packText, stockText];
+  });
+  exportCSV('识图校验结果.csv', headers, rows);
+  addOperationLog('导出识图结果', 'Excel格式');
+}
+
+// 导出图片 - 导出已勾选的
+function ocrExportImg() {
+  var list = ocrResultList.filter(function(r) { return r.selected; });
+  if (list.length === 0) { showToast('请先勾选要导出的记录'); return; }
+  var whId = ocrGetCurrentWhId();
+  var headers = ['识别名称', '匹配产品', '相似度', '数量', '装箱', '库存校验'];
+  var rows = list.map(function(r) {
+    var product = r.productId ? getProductById(r.productId) : null;
+    var packText = product ? formatPack(r.qty, product.perBox) : '-';
+    var stockText = '未匹配';
+    if (product && whId) {
+      var stock = getStock(product.id, whId);
+      stockText = r.qty <= stock ? '充足(' + stock + ')' : '缺货(' + stock + ',缺' + (r.qty - stock) + ')';
+    }
+    var scorePercent = Math.round((r.matchScore || 0) * 100) + '%';
+    return [r.ocrName, product ? product.name : '未匹配', scorePercent, r.qty, packText, stockText];
+  });
+  exportTableImage('识图校验结果.png', '识图校验结果', headers, rows);
+  addOperationLog('导出识图结果', '图片格式');
+}
+
+// 一键入库 - 仅已勾选的，以产品档案名称为准
+function ocrToIn() {
+  var valid = ocrResultList.filter(function(r) { return r.selected && r.productId && r.qty > 0; });
+  if (valid.length === 0) { showToast('没有可入库的记录（请先勾选并匹配产品）'); return; }
+  var nameList = valid.map(function(r) { var p = getProductById(r.productId); return p ? p.name : r.ocrName; });
+  confirmDialog({
+    title: '一键入库',
+    message: '将以下 ' + valid.length + ' 条记录转入入库录入（以产品档案名称为准）：\n' + nameList.slice(0, 5).join('、') + (nameList.length > 5 ? '...' : '') + '\n\n确认继续？',
+    dangerText: '',
+    onConfirm: function() {
+      goPage('stock-in');
+      setTimeout(function() {
+        inDetails = valid.map(function(r) { return { productId: r.productId, qty: r.qty }; });
+        var srcEl = document.getElementById('in-source');
+        if (srcEl) srcEl.value = '识图入库';
+        renderInDetails();
+        showToast('已转入 ' + valid.length + ' 条入库明细');
+      }, 200);
+    }
+  });
+}
+
+// 一键出库 - 仅已勾选的，以产品档案名称为准
+function ocrToOut() {
+  var whId = ocrGetCurrentWhId();
+  var valid = ocrResultList.filter(function(r) { return r.selected && r.productId && r.qty > 0; });
+  if (valid.length === 0) { showToast('没有可出库的记录（请先勾选并匹配产品）'); return; }
+  var canOut = valid.filter(function(r) {
+    var p = getProductById(r.productId);
+    if (!p || !whId) return false;
+    return r.qty <= getStock(p.id, whId);
+  });
+  var shortItems = valid.filter(function(r) {
+    var p = getProductById(r.productId);
+    if (!p || !whId) return true;
+    return r.qty > getStock(p.id, whId);
+  });
+  if (shortItems.length > 0) {
+    var shortNames = shortItems.map(function(r) { var p = getProductById(r.productId); return p ? p.name : r.ocrName; });
+    confirmDialog({
+      title: '库存不足提示',
+      message: shortItems.length + ' 项产品库存不足（' + shortNames.slice(0, 3).join('、') + '...），缺货项将无法出库。是否仅将充足项转入出库？\n充足项：' + canOut.length + ' 项',
+      dangerText: '',
+      onConfirm: function() { ocrDoTransferOut(canOut); }
+    });
+  } else {
+    ocrDoTransferOut(valid);
+  }
+}
+
+function ocrDoTransferOut(items) {
+  if (items.length === 0) { showToast('没有库存充足的可出库记录'); return; }
+  goPage('stock-out');
+  setTimeout(function() {
+    outDetails = items.map(function(r) { return { productId: r.productId, qty: r.qty }; });
+    renderOutDetails();
+    checkOutStock();
+    showToast('已转入 ' + items.length + ' 条出库明细');
+  }, 200);
+}
+
+// ==================== 仓库管理 ====================
+function renderWarehouseManage() {
+  const content = document.getElementById('warehouse-manage-content');
+  
+  let html = '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>仓库名称</th><th>编码</th><th>类型</th><th>库存</th><th>产品数</th><th>状态</th><th>绑定客户</th><th>操作</th></tr></thead><tbody>';
+  db.warehouses.forEach(w => {
+    const stocks = getWarehouseStock(w.id);
+    const totalQty = Object.values(stocks).reduce((a, b) => a + b, 0);
+    const productCount = Object.keys(stocks).filter(k => stocks[k] !== 0).length;
+    
+    let actions = `<button class="row-action-btn" style="background:#bee3f8;color:#2a4365;" onclick="editWarehouse('${w.id}')">编辑</button>`;
+    if (!w.isDefault) actions += ` <button class="row-action-btn" style="background:#fed7d7;color:#c53030;" onclick="deleteWarehouse('${w.id}')">删除</button>`;
+    if (w.status === 'active' && !w.isDefault) actions += ` <button class="row-action-btn" style="background:#fefcbf;color:#975a16;" onclick="disableWarehouse('${w.id}')">停用</button>`;
+    if (w.status === 'inactive') actions += ` <button class="row-action-btn" style="background:#c6f6d5;color:#276749;" onclick="enableWarehouse('${w.id}')">启用</button>`;
+    
+    html += `
+      <tr>
+        <td style="font-weight:600;">${w.name}${w.isDefault ? ' <span class="tag tag-blue">默认</span>' : ''}</td>
+        <td style="font-size:12px;">${w.code}</td>
+        <td>${w.type === 'custom' ? '<span class="tag tag-purple">定制仓</span>' : '<span class="tag tag-green">普通仓</span>'}</td>
+        <td style="font-weight:600;color:#2c5282;">${totalQty}</td>
+        <td>${productCount}</td>
+        <td>${w.status === 'inactive' ? '<span class="tag tag-gray">已停用</span>' : '<span class="tag tag-green">启用</span>'}</td>
+        <td style="font-size:12px;">${w.bindCustomer || '-'}</td>
+        <td style="white-space:nowrap;">${actions}</td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table></div></div>';
+  
+  content.innerHTML = html;
+}
+
+function editWarehouse(warehouseId) {
+  const w = getWarehouseById(warehouseId);
+  if (!w) return;
+  
+  const body = `
+    <div class="form-group">
+      <label class="form-label">仓库名称</label>
+      <input type="text" class="form-input" id="edit-wh-name" value="${w.name}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">仓库类型</label>
+      <select class="form-select" id="edit-wh-type" ${w.isDefault ? 'disabled' : ''}>
+        <option value="normal" ${w.type === 'normal' ? 'selected' : ''}>普通仓</option>
+        <option value="custom" ${w.type === 'custom' ? 'selected' : ''}>定制仓</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">绑定客户（定制仓）</label>
+      <input type="text" class="form-input" id="edit-wh-customer" value="${w.bindCustomer || ''}" placeholder="定制仓可绑定客户名称">
+    </div>
+    ${w.isDefault ? '<p style="font-size:12px;color:#a0aec0;">默认主仓不可修改类型和停用</p>' : ''}
+  `;
+  
+  showModal({
+    title: '编辑仓库',
+    body,
+    confirmText: '保存',
+    onConfirm: () => {
+      const name = document.getElementById('edit-wh-name').value.trim();
+      const type = document.getElementById('edit-wh-type').value;
+      const bindCustomer = document.getElementById('edit-wh-customer').value.trim();
+      
+      if (!name) {
+        showToast('请输入仓库名称');
+        return;
+      }
+      
+      w.name = name;
+      if (!w.isDefault) w.type = type;
+      w.bindCustomer = bindCustomer;
+      
+      addOperationLog('修改仓库', `${name}`);
+      saveData();
+      closeModal();
+      renderWarehouseManage();
+      showToast('保存成功');
+    }
+  });
+}
+
+function disableWarehouse(warehouseId) {
+  const w = getWarehouseById(warehouseId);
+  if (!w || w.isDefault) return;
+  
+  // 检查库存
+  const stocks = getWarehouseStock(warehouseId);
+  const totalQty = Object.values(stocks).reduce((a, b) => a + b, 0);
+  
+  if (totalQty !== 0) {
+    let detail = '';
+    Object.entries(stocks).forEach(([pid, qty]) => {
+      if (qty !== 0) {
+        const p = getProductById(pid);
+        detail += `${p ? p.name : pid}: ${qty}台\n`;
+      }
+    });
+    showModal({
+      title: '无法停用',
+      body: `<p style="color:#e53e3e;">仓库内还有库存，不能停用！</p>
+        <div style="margin-top:10px;font-size:13px;background:#fff5f5;padding:10px;border-radius:6px;">
+          ${detail.replace(/\n/g, '<br>')}
+        </div>`,
+      showFooter: true,
+      confirmText: '知道了',
+      confirmType: 'btn-default',
+      onConfirm: closeModal
+    });
+    return;
+  }
+  
+  // 定制仓有绑定客户确认
+  const doDisable = () => {
+    confirmDialog({
+      title: '停用仓库',
+      message: `确定要停用仓库「${w.name}」吗？停用后将不出现在出入库选项中。`,
+      dangerText: '确认停用',
+      onConfirm: () => {
+        w.status = 'inactive';
+        addOperationLog('停用仓库', w.name);
+        saveData();
+        renderWarehouseManage();
+        showToast('已停用');
+      }
+    });
+  };
+  
+  if (w.bindCustomer) {
+    confirmDialog({
+      title: '确认解绑',
+      message: `该仓库绑定了客户「${w.bindCustomer}」，停用后绑定关系将保留，确认继续？`,
+      dangerText: '',
+      onConfirm: doDisable
+    });
+  } else {
+    doDisable();
+  }
+}
+
+function enableWarehouse(warehouseId) {
+  const w = getWarehouseById(warehouseId);
+  if (!w) return;
+  
+  w.status = 'active';
+  addOperationLog('启用仓库', w.name);
+  saveData();
+  renderWarehouseManage();
+  showToast('已启用');
+}
+
+function deleteWarehouse(warehouseId) {
+  const w = getWarehouseById(warehouseId);
+  if (!w) return;
+
+  // 默认主仓不可删除
+  if (w.isDefault) {
+    showToast('默认主仓不可删除');
+    return;
+  }
+
+  // 检查库存是否为0
+  const stocks = getWarehouseStock(warehouseId);
+  const totalQty = Object.values(stocks).reduce((a, b) => a + b, 0);
+
+  if (totalQty !== 0) {
+    let detail = '';
+    Object.entries(stocks).forEach(([pid, qty]) => {
+      if (qty !== 0) {
+        const p = getProductById(pid);
+        detail += `${p ? p.name : pid}: ${qty}台\n`;
+      }
+    });
+    showModal({
+      title: '无法删除',
+      body: `<p style="color:#e53e3e;">仓库内还有库存，不能删除！</p>
+        <div style="margin-top:10px;font-size:13px;background:#fff5f5;padding:10px;border-radius:6px;">
+          ${detail.replace(/\n/g, '<br>')}
+        </div>
+        <p style="font-size:13px;color:#718096;margin-top:8px;">请先清空该仓库所有库存后再删除。</p>`,
+      showFooter: true,
+      confirmText: '知道了',
+      confirmType: 'btn-default',
+      onConfirm: closeModal
+    });
+    return;
+  }
+
+  confirmDialog({
+    title: '删除仓库',
+    message: `确定要删除仓库「${w.name}」吗？删除后不可恢复，历史单据和流水记录仍保留。`,
+    dangerText: '确认删除',
+    onConfirm: () => {
+      db.warehouses = db.warehouses.filter(item => item.id !== warehouseId);
+      addOperationLog('删除仓库', w.name);
+      saveData();
+      renderWarehouseManage();
+      showToast('已删除');
+    }
+  });
+}
+
+function showAddWarehouseModal() {
+  const body = `
+    <div class="form-group">
+      <label class="form-label">仓库编码</label>
+      <input type="text" class="form-input" id="new-wh-code" placeholder="如 W003">
+    </div>
+    <div class="form-group">
+      <label class="form-label">仓库名称</label>
+      <input type="text" class="form-input" id="new-wh-name" placeholder="请输入仓库名称">
+    </div>
+    <div class="form-group">
+      <label class="form-label">仓库类型</label>
+      <select class="form-select" id="new-wh-type">
+        <option value="normal">普通仓</option>
+        <option value="custom">定制仓</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">绑定客户（定制仓可选）</label>
+      <input type="text" class="form-input" id="new-wh-customer" placeholder="">
+    </div>
+  `;
+  
+  showModal({
+    title: '新增仓库',
+    body,
+    confirmText: '保存',
+    onConfirm: () => {
+      const code = document.getElementById('new-wh-code').value.trim();
+      const name = document.getElementById('new-wh-name').value.trim();
+      const type = document.getElementById('new-wh-type').value;
+      const bindCustomer = document.getElementById('new-wh-customer').value.trim();
+      
+      if (!code || !name) {
+        showToast('请填写编码和名称');
+        return;
+      }
+      
+      db.warehouses.push({
+        id: genId('W'),
+        code,
+        name,
+        type,
+        status: 'active',
+        bindCustomer,
+        isDefault: false,
+        createTime: Date.now(),
+      });
+      
+      addOperationLog('新增仓库', `${name} (${code})`);
+      saveData();
+      closeModal();
+      renderWarehouseManage();
+      showToast('添加成功');
+    }
+  });
+}
+
+// ==================== 用户管理 ====================
+function renderUserManage() {
+  const content = document.getElementById('user-manage-content');
+  
+  let html = '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>显示名称</th><th>账号</th><th>角色</th><th>状态</th><th>备注</th><th>操作</th></tr></thead><tbody>';
+  db.users.forEach(u => {
+    let actions = `<button class="row-action-btn" style="background:#bee3f8;color:#2a4365;" onclick="editUser('${u.id}')">编辑</button>`;
+    if (u.id !== currentUser.id && u.status === 'active') actions += ` <button class="row-action-btn" style="background:#fed7d7;color:#c53030;" onclick="disableUser('${u.id}')">停用</button>`;
+    if (u.status === 'inactive') actions += ` <button class="row-action-btn" style="background:#c6f6d5;color:#276749;" onclick="enableUser('${u.id}')">启用</button>`;
+    
+    html += `
+      <tr>
+        <td style="font-weight:600;">${u.displayName}</td>
+        <td style="font-size:12px;">${u.username}</td>
+        <td><span class="tag ${u.role === 'admin' ? 'tag-blue' : 'tag-green'}">${u.role === 'admin' ? '管理员' : '操作员'}</span></td>
+        <td>${u.status === 'inactive' ? '<span class="tag tag-gray">已停用</span>' : '<span class="tag tag-green">启用</span>'}</td>
+        <td style="font-size:12px;">${u.remark || '-'}</td>
+        <td style="white-space:nowrap;">${actions}</td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table></div></div>';
+  
+  content.innerHTML = html;
+}
+
+function editUser(userId) {
+  const u = getUserById(userId);
+  if (!u) return;
+  
+  const body = `
+    <div class="form-group">
+      <label class="form-label">登录账号（不可修改）</label>
+      <input type="text" class="form-input" value="${u.username}" disabled style="background:#f7fafc;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">显示名称</label>
+      <input type="text" class="form-input" id="edit-user-display" value="${u.displayName}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">角色</label>
+      <select class="form-select" id="edit-user-role">
+        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>管理员</option>
+        <option value="operator" ${u.role === 'operator' ? 'selected' : ''}>操作员</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注</label>
+      <input type="text" class="form-input" id="edit-user-remark" value="${u.remark || ''}">
+    </div>
+  `;
+  
+  showModal({
+    title: '编辑用户',
+    body,
+    confirmText: '保存',
+    onConfirm: () => {
+      const displayName = document.getElementById('edit-user-display').value.trim();
+      const role = document.getElementById('edit-user-role').value;
+      const remark = document.getElementById('edit-user-remark').value.trim();
+      
+      if (!displayName) {
+        showToast('请输入显示名称');
+        return;
+      }
+      
+      u.displayName = displayName;
+      u.role = role;
+      u.remark = remark;
+      
+      // 如果修改的是当前用户，更新session
+      if (u.id === currentUser.id) {
+        currentUser.displayName = displayName;
+        currentUser.role = role;
+        sessionStorage.setItem('aping_current_user', JSON.stringify(currentUser));
+      }
+      
+      addOperationLog('修改用户', `${u.username} → ${displayName}`);
+      saveData();
+      closeModal();
+      renderUserManage();
+      showToast('保存成功');
+    }
+  });
+}
+
+function disableUser(userId) {
+  const u = getUserById(userId);
+  if (!u) return;
+  
+  confirmDialog({
+    title: '停用用户',
+    message: `确定要停用用户「${u.displayName}」吗？停用后该用户无法登录。`,
+    dangerText: '确认停用',
+    onConfirm: () => {
+      u.status = 'inactive';
+      addOperationLog('停用用户', u.displayName);
+      saveData();
+      renderUserManage();
+      showToast('已停用');
+    }
+  });
+}
+
+function enableUser(userId) {
+  const u = getUserById(userId);
+  if (!u) return;
+  
+  u.status = 'active';
+  addOperationLog('启用用户', u.displayName);
+  saveData();
+  renderUserManage();
+  showToast('已启用');
+}
+
+function showAddUserModal() {
+  const body = `
+    <div class="form-group">
+      <label class="form-label">登录账号</label>
+      <input type="text" class="form-input" id="new-user-username" placeholder="请输入登录账号">
+    </div>
+    <div class="form-group">
+      <label class="form-label">显示名称</label>
+      <input type="text" class="form-input" id="new-user-display" placeholder="请输入显示名称">
+    </div>
+    <div class="form-group">
+      <label class="form-label">初始密码</label>
+      <input type="text" class="form-input" id="new-user-password" value="123456">
+    </div>
+    <div class="form-group">
+      <label class="form-label">角色</label>
+      <select class="form-select" id="new-user-role">
+        <option value="operator">操作员</option>
+        <option value="admin">管理员</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注</label>
+      <input type="text" class="form-input" id="new-user-remark" placeholder="">
+    </div>
+  `;
+  
+  showModal({
+    title: '新增用户',
+    body,
+    confirmText: '保存',
+    onConfirm: () => {
+      const username = document.getElementById('new-user-username').value.trim();
+      const displayName = document.getElementById('new-user-display').value.trim();
+      const password = document.getElementById('new-user-password').value.trim();
+      const role = document.getElementById('new-user-role').value;
+      const remark = document.getElementById('new-user-remark').value.trim();
+      
+      if (!username || !displayName || !password) {
+        showToast('请填写完整信息');
+        return;
+      }
+      
+      if (db.users.find(u => u.username === username)) {
+        showToast('账号已存在');
+        return;
+      }
+      
+      db.users.push({
+        id: genId('U'),
+        username,
+        password,
+        displayName,
+        role,
+        status: 'active',
+        remark,
+        createTime: Date.now(),
+      });
+      
+      addOperationLog('新增用户', `${username} (${displayName})`);
+      saveData();
+      closeModal();
+      renderUserManage();
+      showToast('添加成功');
+    }
+  });
+}
+
+// ==================== 数据备份 ====================
+function renderBackupPage() {
+  const content = document.getElementById('backup-log-content');
+  
+  if (db.backupLogs.length === 0) {
+    content.innerHTML = '<div style="text-align:center;color:#a0aec0;padding:20px;">暂无备份记录</div>';
+    return;
+  }
+  
+  let html = '';
+  db.backupLogs.slice(0, 20).forEach(b => {
+    html += `
+      <div class="log-item">
+        <div class="log-time">${formatTime(b.createTime)}</div>
+        <div class="log-content">${b.fileName}</div>
+        <div class="log-user">操作人：${b.userName} · 状态：${b.status}</div>
+      </div>
+    `;
+  });
+  
+  content.innerHTML = html;
+}
+
+function doBackup() {
+  const now = Date.now();
+  const dateStr = formatDate(now).replace(/-/g, '');
+  const timeStr = new Date(now).toTimeString().slice(0, 5).replace(':', '');
+  const fileName = `阿平仓库管理_备份_${dateStr}_${timeStr}.json`;
+  
+  const backupData = JSON.stringify(db, null, 2);
+  const blob = new Blob([backupData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  setTimeout(function() {
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }, 0);
+  
+  db.backupLogs.unshift({
+    id: genId('BKP'),
+    fileName,
+    status: '成功',
+    storageLocation: '本地下载',
+    userId: currentUser.id,
+    userName: currentUser.displayName,
+    createTime: now,
+  });
+  
+  addOperationLog('数据备份', fileName);
+  saveData();
+  renderBackupPage();
+  showToast('备份成功，文件已下载');
+}
+
+function handleRestoreFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      confirmDialog({
+        title: '数据恢复确认',
+        message: '恢复数据将覆盖当前所有数据，确定继续吗？',
+        dangerText: '确认恢复',
+        onConfirm: () => {
+          db = data;
+          saveData();
+          addOperationLog('数据恢复', `从 ${file.name} 恢复`);
+          showToast('恢复成功，请重新登录');
+          setTimeout(logout, 1500);
+        }
+      });
+    } catch (err) {
+      showToast('文件格式错误');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// 初始化演示数据
+function initDemoData() {
+  confirmDialog({
+    title: '初始化演示数据',
+    message: '将生成仓库、产品、库存等演示数据，当前数据将被覆盖。确认继续吗？',
+    dangerText: '确认初始化',
+    onConfirm: function() {
+      // 生成仓库
+      var wh1 = { id: 'WH001', name: '主仓库', code: 'W01', type: 'normal', status: 'active', isDefault: true, bindCustomer: '', createTime: Date.now() };
+      var wh2 = { id: 'WH002', name: '二号仓', code: 'W02', type: 'normal', status: 'active', isDefault: false, bindCustomer: '', createTime: Date.now() };
+      var wh3 = { id: 'WH003', name: '定制仓A', code: 'C01', type: 'custom', status: 'active', isDefault: false, bindCustomer: '客户A', createTime: Date.now() };
+      db.warehouses = [wh1, wh2, wh3];
+      
+      // 生成产品
+      var products = [
+        { id: 'P001', name: '通用产品A', code: 'CP001', spec: '标准款', perBox: 20, safetyStock: 50, isCustom: false, createTime: Date.now() },
+        { id: 'P002', name: '通用产品B', code: 'CP002', spec: '标准款', perBox: 50, safetyStock: 100, isCustom: false, createTime: Date.now() },
+        { id: 'P003', name: '定制产品X', code: 'DZ001', spec: '定制款', perBox: 10, safetyStock: 20, isCustom: true, createTime: Date.now() },
+        { id: 'P004', name: '测试产品C', code: 'CS001', spec: '测试款', perBox: 30, safetyStock: 30, isCustom: false, createTime: Date.now() },
+      ];
+      db.products = products;
+      
+      // 生成库存
+      db.stockFlow = [];
+      var now = Date.now();
+      // 主仓库库存
+      db.stockFlow.push({ id: genId('F'), productId: 'P001', warehouseId: 'WH001', type: 'in', qty: 500, beforeQty: 0, afterQty: 500, orderId: 'INIT', orderType: 'init', remark: '初始库存', createBy: 'system', createByName: '系统', createTime: now });
+      db.stockFlow.push({ id: genId('F'), productId: 'P002', warehouseId: 'WH001', type: 'in', qty: 2000, beforeQty: 0, afterQty: 2000, orderId: 'INIT', orderType: 'init', remark: '初始库存', createBy: 'system', createByName: '系统', createTime: now });
+      db.stockFlow.push({ id: genId('F'), productId: 'P004', warehouseId: 'WH001', type: 'in', qty: 300, beforeQty: 0, afterQty: 300, orderId: 'INIT', orderType: 'init', remark: '初始库存', createBy: 'system', createByName: '系统', createTime: now });
+      // 二号仓库存
+      db.stockFlow.push({ id: genId('F'), productId: 'P001', warehouseId: 'WH002', type: 'in', qty: 200, beforeQty: 0, afterQty: 200, orderId: 'INIT', orderType: 'init', remark: '初始库存', createBy: 'system', createByName: '系统', createTime: now });
+      db.stockFlow.push({ id: genId('F'), productId: 'P002', warehouseId: 'WH002', type: 'in', qty: 800, beforeQty: 0, afterQty: 800, orderId: 'INIT', orderType: 'init', remark: '初始库存', createBy: 'system', createByName: '系统', createTime: now });
+      // 定制仓
+      db.stockFlow.push({ id: genId('F'), productId: 'P003', warehouseId: 'WH003', type: 'in', qty: 100, beforeQty: 0, afterQty: 100, orderId: 'INIT', orderType: 'init', remark: '初始库存', createBy: 'system', createByName: '系统', createTime: now });
+      
+      // 清空出入库单
+      db.stockInOrders = [];
+      db.stockOutOrders = [];
+      
+      // 保留操作日志记录
+      addOperationLog('初始化数据', '生成演示数据');
+      saveData();
+      showToast('初始化完成');
+      renderBackupPage();
+    }
+  });
+}
+
+// 选择性清空数据
+function selectiveClear(type) {
+  var typeNames = {
+    stockIn: '入库单',
+    stockOut: '出库单',
+    stock: '库存（流水清零）',
+    products: '产品档案',
+    flow: '库存流水',
+    logs: '操作日志',
+    all: '所有数据'
+  };
+  var name = typeNames[type] || type;
+  
+  confirmDialog({
+    title: '确认清空',
+    message: '确定要清空「' + name + '」吗？此操作不可逆！',
+    dangerText: '确认清空',
+    onConfirm: function() {
+      switch(type) {
+        case 'stockIn':
+          db.stockInOrders = [];
+          break;
+        case 'stockOut':
+          db.stockOutOrders = [];
+          break;
+        case 'stock':
+          db.stockFlow = [];
+          break;
+        case 'products':
+          db.products = [];
+          db.stockFlow = [];
+          db.stockInOrders = [];
+          db.stockOutOrders = [];
+          break;
+        case 'flow':
+          db.stockFlow = [];
+          break;
+        case 'logs':
+          db.operationLogs = [];
+          db.backupLogs = [];
+          break;
+        case 'all':
+          db.products = [];
+          db.warehouses = [];
+          db.stockFlow = [];
+          db.stockInOrders = [];
+          db.stockOutOrders = [];
+          db.operationLogs = [];
+          db.backupLogs = [];
+          db.ocrLogs = [];
+          db.transferOrders = [];
+          break;
+      }
+      addOperationLog('清空数据', name);
+      saveData();
+      showToast('已清空' + name);
+      renderBackupPage();
+    }
+  });
+}
+
+// ==================== 操作日志 ====================
+function renderOperationLog() {
+  const content = document.getElementById('operation-log-content');
+  
+  if (db.operationLogs.length === 0) {
+    content.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div>暂无操作日志</div>';
+    return;
+  }
+  
+  let html = '<div class="card" style="padding:0;overflow:hidden;"><div class="table-container"><table class="data-table"><thead><tr><th>日期时间</th><th>操作</th><th>详情</th><th>操作人</th></tr></thead><tbody>';
+  db.operationLogs.slice(0, 50).forEach(log => {
+    html += `
+      <tr>
+        <td style="white-space:nowrap;font-size:12px;">${formatTime(log.createTime)}</td>
+        <td style="font-weight:600;">${log.action}</td>
+        <td style="font-size:12px;">${log.detail}</td>
+        <td style="font-size:12px;">${log.userName}</td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table></div></div>';
+  
+  content.innerHTML = html;
+}
+
+// ==================== 库存调拨 ====================
+function initTransferPage() {
+  const fromSel = document.getElementById('transfer-from');
+  const toSel = document.getElementById('transfer-to');
+  const prodSel = document.getElementById('transfer-product');
+  
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
+  getActiveWarehouses().forEach(w => {
+    fromSel.innerHTML += `<option value="${w.id}">${w.name}</option>`;
+    toSel.innerHTML += `<option value="${w.id}">${w.name}</option>`;
+  });
+  if (toSel.options.length > 1) toSel.selectedIndex = 1;
+  
+  prodSel.innerHTML = '<option value="">选择产品</option>';
+  db.products.forEach(p => {
+    prodSel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+  });
+  
+  updateTransferStock();
+  renderTransferList();
+}
+
+function updateTransferStock() {
+  const fromId = document.getElementById('transfer-from').value;
+  const productId = document.getElementById('transfer-product').value;
+  const stockEl = document.getElementById('transfer-current-stock');
+  
+  if (!productId) {
+    stockEl.textContent = '0 台';
+    return;
+  }
+  
+  const qty = getStock(productId, fromId);
+  const p = getProductById(productId);
+  stockEl.textContent = `${qty} 台 · ${formatPack(qty, p ? p.perBox : 0)}`;
+}
+
+function submitTransfer() {
+  const fromId = document.getElementById('transfer-from').value;
+  const toId = document.getElementById('transfer-to').value;
+  const productId = document.getElementById('transfer-product').value;
+  const qty = parseInt(document.getElementById('transfer-qty').value);
+  const remark = document.getElementById('transfer-remark').value.trim();
+  
+  if (fromId === toId) {
+    showToast('调出仓和调入仓不能相同');
+    return;
+  }
+  if (!productId || !qty || qty <= 0) {
+    showToast('请选择产品并输入数量');
+    return;
+  }
+  
+  const currentStock = getStock(productId, fromId);
+  if (qty > currentStock) {
+    showToast('调出仓库存不足');
+    return;
+  }
+  
+  const fromWh = getWarehouseById(fromId);
+  const toWh = getWarehouseById(toId);
+  const p = getProductById(productId);
+  
+  // 定制产品跨类型调拨需要管理员
+  const needForce = p && p.isCustom && fromWh.type === 'custom' && toWh.type === 'normal' && !isAdmin();
+  if (needForce) {
+    showToast('定制产品调拨到普通仓需管理员权限');
+    return;
+  }
+  
+  const needForce2 = p && !p.isCustom && fromWh.type === 'normal' && toWh.type === 'custom' && !isAdmin();
+  if (needForce2) {
+    showToast('普通产品调拨到定制仓需管理员权限');
+    return;
+  }
+  
+  const doTransfer = () => {
+    const now = Date.now();
+    const orderId = genId('TR');
+    
+    const order = {
+      id: orderId,
+      fromWarehouseId: fromId,
+      toWarehouseId: toId,
+      productId,
+      qty,
+      remark,
+      status: 'normal',
+      createBy: currentUser.id,
+      createByName: currentUser.displayName,
+      createTime: now,
+    };
+    
+    db.transferOrders.unshift(order);
+    
+    // 调出流水（负向）
+    const fromBefore = getStock(productId, fromId);
+    db.stockFlow.push({
+      id: genId('F'),
+      productId,
+      warehouseId: fromId,
+      type: 'out',
+      qty,
+      beforeQty: fromBefore,
+      afterQty: fromBefore - qty,
+      orderId,
+      orderType: 'transferOut',
+      remark: `调拨至${toWh.name}`,
+      createBy: currentUser.id,
+      createByName: currentUser.displayName,
+      createTime: now,
+    });
+    
+    // 调入流水（正向）
+    const toBefore = getStock(productId, toId);
+    db.stockFlow.push({
+      id: genId('F'),
+      productId,
+      warehouseId: toId,
+      type: 'in',
+      qty,
+      beforeQty: toBefore,
+      afterQty: toBefore + qty,
+      orderId,
+      orderType: 'transferIn',
+      remark: `从${fromWh.name}调拨`,
+      createBy: currentUser.id,
+      createByName: currentUser.displayName,
+      createTime: now,
+    });
+    
+    addOperationLog('库存调拨', `${fromWh.name} → ${toWh.name}，${p.name} ${qty}台`);
+    saveData();
+    showToast('调拨成功');
+    document.getElementById('transfer-qty').value = '';
+    updateTransferStock();
+    renderTransferList();
+  };
+  
+  if ((needForce || needForce2) && isAdmin()) {
+    confirmDialog({
+      title: '强制调拨确认',
+      message: '跨仓库类型调拨，作为管理员确认强制执行？',
+      dangerText: '确认强制调拨',
+      onConfirm: doTransfer
+    });
+  } else {
+    doTransfer();
+  }
+}
+
+function renderTransferList() {
+  const container = document.getElementById('transfer-list');
+  
+  if (db.transferOrders.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:#a0aec0;padding:16px;">暂无调拨记录</div>';
+    return;
+  }
+  
+  let html = '<div class="table-container"><table class="data-table"><thead><tr><th>日期时间</th><th>源仓库</th><th>目标仓库</th><th>产品</th><th>数量</th><th>备注</th><th>操作人</th></tr></thead><tbody>';
+  db.transferOrders.slice(0, 20).forEach(o => {
+    const fromWh = getWarehouseById(o.fromWarehouseId);
+    const toWh = getWarehouseById(o.toWarehouseId);
+    const p = getProductById(o.productId);
+    html += `
+      <tr>
+        <td style="white-space:nowrap;font-size:12px;">${formatTime(o.createTime)}</td>
+        <td>${fromWh ? fromWh.name : '-'}</td>
+        <td>${toWh ? toWh.name : '-'}</td>
+        <td>${p ? p.name : '-'}</td>
+        <td style="font-weight:600;color:#3182ce;">${o.qty}台</td>
+        <td style="font-size:12px;max-width:100px;overflow:hidden;text-overflow:ellipsis;">${o.remark || '-'}</td>
+        <td style="font-size:12px;">${o.createByName}</td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table></div>';
+  
+  container.innerHTML = html;
+}
+
+// ==================== 导入导出功能 ====================
+
+// CSV导出工具
+function exportCSV(filename, headers, rows) {
+  var csv = [headers.join(',')];
+  rows.forEach(function(r) {
+    csv.push(r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','));
+  });
+  var blob = new Blob(['\ufeff' + csv.join('\n')], { type: 'text/csv;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  // 用setTimeout确保元素在DOM中后再触发
+  setTimeout(function() {
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }, 0);
+  showToast('已导出 ' + filename);
+}
+
+// 图片导出工具 - 将表格转为图片
+function exportTableImage(filename, title, headers, rows) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const colWidths = headers.map(() => 120);
+  const rowHeight = 36;
+  const headerHeight = 44;
+  const padding = 20;
+  const titleHeight = 50;
+  
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0) + padding * 2;
+  const tableHeight = titleHeight + headerHeight + rows.length * rowHeight + padding * 2;
+  
+  canvas.width = tableWidth;
+  canvas.height = tableHeight;
+  
+  // 背景
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // 标题
+  ctx.fillStyle = '#1a365d';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(title, canvas.width / 2, padding + 24);
+  
+  // 表头
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'left';
+  let x = padding;
+  let y = padding + titleHeight;
+  
+  ctx.fillStyle = '#f7fafc';
+  ctx.fillRect(x, y, colWidths.reduce((a, b) => a + b, 0), headerHeight);
+  
+  headers.forEach((h, i) => {
+    ctx.fillStyle = '#4a5568';
+    ctx.fillText(h, x + 8, y + 26);
+    x += colWidths[i];
+  });
+  
+  // 数据行
+  y += headerHeight;
+  rows.forEach((row, ri) => {
+    x = padding;
+    // 交替背景
+    if (ri % 2 === 1) {
+      ctx.fillStyle = '#f7fafc';
+      ctx.fillRect(x, y, colWidths.reduce((a, b) => a + b, 0), rowHeight);
+    }
+    
+    row.forEach((cell, ci) => {
+      ctx.fillStyle = '#2d3748';
+      ctx.font = '12px sans-serif';
+      const text = String(cell).length > 10 ? String(cell).substring(0, 9) + '…' : String(cell);
+      ctx.fillText(text, x + 8, y + 24);
+      x += colWidths[ci];
+    });
+    y += rowHeight;
+  });
+  
+  // 边框
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(padding, padding + titleHeight, colWidths.reduce((a, b) => a + b, 0), headerHeight + rows.length * rowHeight);
+  
+  var url = canvas.toDataURL('image/png');
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  setTimeout(function() {
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+    }, 100);
+  }, 0);
+  showToast('已导出 ' + filename);
+}
+
+// 仓库产品列表导出Excel
+function exportWarehouseStockExcel() {
+  const w = getWarehouseById(currentWarehouseId);
+  if (!w) { showToast('请先选择仓库'); return; }
+  const stocks = getWarehouseStock(w.id);
+  const productsWithStock = db.products.filter(p => (stocks[p.id] || 0) !== 0);
+  
+  if (productsWithStock.length === 0) { showToast('暂无库存数据'); return; }
+  
+  const headers = ['产品名称', '库存数量', '装箱', '每箱台数', '规格', '安全库存'];
+  const rows = productsWithStock.map(p => {
+    const qty = stocks[p.id] || 0;
+    return [p.name, qty, formatPack(qty, p.perBox), p.perBox, p.spec, p.safetyStock];
+  });
+  
+  exportCSV(`仓库库存_${w.name}.csv`, headers, rows);
+  addOperationLog('导出仓库库存', w.name);
+}
+
+// 仓库产品列表导出图片
+function exportWarehouseStockImage() {
+  const w = getWarehouseById(currentWarehouseId);
+  if (!w) { showToast('请先选择仓库'); return; }
+  const stocks = getWarehouseStock(w.id);
+  const productsWithStock = db.products.filter(p => (stocks[p.id] || 0) !== 0);
+  
+  if (productsWithStock.length === 0) { showToast('暂无库存数据'); return; }
+  
+  const headers = ['产品名称', '库存', '装箱'];
+  const rows = productsWithStock.map(p => {
+    const qty = stocks[p.id] || 0;
+    return [p.name, qty, formatPack(qty, p.perBox)];
+  });
+  
+  exportTableImage(`仓库库存_${w.name}.png`, `${w.name} - 库存清单`, headers, rows);
+  addOperationLog('导出仓库库存图片', w.name);
+}
+
+// 仓库产品列表导入CSV
+function importWarehouseStockCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const w = getWarehouseById(currentWarehouseId);
+  if (!w) { showToast('请先选择仓库'); return; }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result.replace(/^\ufeff/, '');
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) { showToast('文件无有效数据'); return; }
+      
+      let imported = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 2) continue;
+        
+        const productName = cols[0].trim();
+        const qty = parseInt(cols[1]) || 0;
+        const product = db.products.find(p => p.name === productName);
+        
+        if (product && qty > 0) {
+          const currentStock = getStock(product.id, w.id);
+          if (currentStock === 0) {
+            const now = Date.now();
+            const orderId = genId('IN');
+            db.stockInOrders.push({
+              id: orderId, warehouseId: w.id, source: 'Excel导入', remark: '从Excel导入',
+              details: [{ productId: product.id, qty }], status: 'normal',
+              createBy: currentUser.id, createByName: currentUser.displayName, createTime: now,
+            });
+            db.stockFlow.push({
+              id: genId('F'), productId: product.id, warehouseId: w.id, type: 'in', qty,
+              beforeQty: 0, afterQty: qty, orderId, orderType: 'stockIn', remark: 'Excel导入',
+              createBy: currentUser.id, createByName: currentUser.displayName, createTime: now,
+            });
+            imported++;
+          }
+        }
+      }
+      
+      addOperationLog('导入仓库库存', `${w.name} ${imported}条`);
+      saveData();
+      renderWarehouseStock();
+      showToast('导入成功 ' + imported + ' 条');
+    } catch (err) {
+      showToast('导入失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// 库存导出Excel
+function exportStockExcel() {
+  const headers = ['仓库', '产品名称', '库存数量', '装箱', '每箱台数', '规格'];
+  const rows = [];
+  
+  db.warehouses.forEach(w => {
+    const stocks = getWarehouseStock(w.id);
+    db.products.forEach(p => {
+      const qty = stocks[p.id] || 0;
+      if (qty !== 0) {
+        rows.push([w.name, p.name, qty, formatPack(qty, p.perBox), p.perBox, p.spec]);
+      }
+    });
+  });
+  
+  if (rows.length === 0) {
+    showToast('暂无库存数据');
+    return;
+  }
+  
+  exportCSV('阿平仓库管理_库存_' + formatDate(Date.now()).replace(/-/g, '') + '.csv', headers, rows);
+  addOperationLog('导出库存', 'Excel格式');
+}
+
+// 库存导出图片
+function exportStockImage() {
+  const headers = ['仓库', '产品名称', '库存', '装箱'];
+  const rows = [];
+  
+  db.warehouses.forEach(w => {
+    const stocks = getWarehouseStock(w.id);
+    db.products.forEach(p => {
+      const qty = stocks[p.id] || 0;
+      if (qty !== 0) {
+        rows.push([w.name, p.name, qty, formatPack(qty, p.perBox)]);
+      }
+    });
+  });
+  
+  if (rows.length === 0) {
+    showToast('暂无库存数据');
+    return;
+  }
+  
+  exportTableImage('阿平仓库管理_库存_' + formatDate(Date.now()).replace(/-/g, '') + '.png', '阿平仓库管理 - 库存总览', headers, rows.slice(0, 50));
+  addOperationLog('导出库存', '图片格式');
+}
+
+// 库存导入CSV
+function importStockCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result.replace(/^\ufeff/, '');
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) {
+        showToast('文件无有效数据');
+        return;
+      }
+      
+      const headers = parseCSVLine(lines[0]);
+      let imported = 0;
+      
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 3) continue;
+        
+        const productName = cols[1].trim();
+        const qty = parseInt(cols[2]) || 0;
+        const warehouseName = cols[0].trim();
+        
+        const product = db.products.find(p => p.name === productName);
+        const warehouse = db.warehouses.find(w => w.name === warehouseName);
+        
+        if (product && warehouse && qty > 0) {
+          // 检查是否已有库存
+          const currentStock = getStock(product.id, warehouse.id);
+          if (currentStock === 0) {
+            // 创建导入入库单
+            const now = Date.now();
+            const orderId = genId('IN');
+            db.stockInOrders.push({
+              id: orderId,
+              warehouseId: warehouse.id,
+              source: 'Excel导入',
+              remark: '从Excel导入',
+              details: [{ productId: product.id, qty }],
+              status: 'normal',
+              createBy: currentUser.id,
+              createByName: currentUser.displayName,
+              createTime: now,
+            });
+            db.stockFlow.push({
+              id: genId('F'),
+              productId: product.id,
+              warehouseId: warehouse.id,
+              type: 'in',
+              qty,
+              beforeQty: 0,
+              afterQty: qty,
+              orderId,
+              orderType: 'stockIn',
+              remark: 'Excel导入',
+              createBy: currentUser.id,
+              createByName: currentUser.displayName,
+              createTime: now,
+            });
+            imported++;
+          }
+        }
+      }
+      
+      addOperationLog('导入库存', `从Excel导入 ${imported} 条`);
+      saveData();
+      renderStockOverview();
+      showToast('导入成功 ' + imported + ' 条');
+    } catch (err) {
+      showToast('导入失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// CSV行解析
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+// 入库清单导出Excel
+function exportInListExcel() {
+  const warehouseId = document.getElementById('in-list-filter-warehouse').value;
+  const status = document.getElementById('in-list-filter-status').value;
+  const productSearch = (document.getElementById('in-list-filter-product') || {}).value || '';
+  const dateStart = (document.getElementById('in-list-filter-date-start') || {}).value || '';
+  const dateEnd = (document.getElementById('in-list-filter-date-end') || {}).value || '';
+  
+  let orders = [...db.stockInOrders];
+  if (warehouseId) orders = orders.filter(o => o.warehouseId === warehouseId);
+  if (status) orders = orders.filter(o => o.status === status);
+  if (productSearch) { const kw = productSearch.toLowerCase(); orders = orders.filter(o => o.details.some(d => { const p = getProductById(d.productId); return p && p.name.toLowerCase().indexOf(kw) >= 0; })); }
+  if (dateStart) { const t = new Date(dateStart + 'T00:00:00').getTime(); orders = orders.filter(o => o.createTime >= t); }
+  if (dateEnd) { const t = new Date(dateEnd + 'T23:59:59').getTime(); orders = orders.filter(o => o.createTime <= t); }
+  
+  if (orders.length === 0) {
+    showToast('暂无数据');
+    return;
+  }
+  
+  const headers = ['仓库', '产品名称', '数量', '来源', '日期时间', '状态', '操作人'];
+  const rows = orders.map(o => {
+    const w = getWarehouseById(o.warehouseId);
+    const productNames = o.details.map(d => { const p = getProductById(d.productId); return p ? p.name : '-'; }).join('、');
+    const totalQty = o.details.reduce((s, d) => s + d.qty, 0);
+    return [w ? w.name : '-', productNames, totalQty, o.source, formatTime(o.createTime), o.status === 'normal' ? '正常' : '已撤回', o.createByName];
+  });
+  
+  exportCSV('阿平仓库管理_入库清单_' + formatDate(Date.now()).replace(/-/g, '') + '.csv', headers, rows);
+  addOperationLog('导出入库清单', 'Excel格式');
+}
+
+// 入库清单导出图片
+function exportInListImage() {
+  const warehouseId = document.getElementById('in-list-filter-warehouse').value;
+  const status = document.getElementById('in-list-filter-status').value;
+  const productSearch = (document.getElementById('in-list-filter-product') || {}).value || '';
+  const dateStart = (document.getElementById('in-list-filter-date-start') || {}).value || '';
+  const dateEnd = (document.getElementById('in-list-filter-date-end') || {}).value || '';
+  
+  let orders = [...db.stockInOrders];
+  if (warehouseId) orders = orders.filter(o => o.warehouseId === warehouseId);
+  if (status) orders = orders.filter(o => o.status === status);
+  if (productSearch) { const kw = productSearch.toLowerCase(); orders = orders.filter(o => o.details.some(d => { const p = getProductById(d.productId); return p && p.name.toLowerCase().indexOf(kw) >= 0; })); }
+  if (dateStart) { const t = new Date(dateStart + 'T00:00:00').getTime(); orders = orders.filter(o => o.createTime >= t); }
+  if (dateEnd) { const t = new Date(dateEnd + 'T23:59:59').getTime(); orders = orders.filter(o => o.createTime <= t); }
+  
+  if (orders.length === 0) {
+    showToast('暂无数据');
+    return;
+  }
+  
+  const headers = ['仓库', '产品', '数量', '来源', '日期时间'];
+  const rows = orders.slice(0, 50).map(o => {
+    const w = getWarehouseById(o.warehouseId);
+    const productNames = o.details.map(d => { const p = getProductById(d.productId); return p ? p.name : '-'; }).join('、');
+    const totalQty = o.details.reduce((s, d) => s + d.qty, 0);
+    return [w ? w.name : '-', productNames, totalQty, o.source, formatTime(o.createTime)];
+  });
+  
+  exportTableImage('阿平仓库管理_入库清单_' + formatDate(Date.now()).replace(/-/g, '') + '.png', '阿平仓库管理 - 入库清单', headers, rows);
+  addOperationLog('导出入库清单', '图片格式');
+}
+
+// 入库清单导入CSV
+function importInListCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result.replace(/^\ufeff/, '');
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) {
+        showToast('文件无有效数据');
+        return;
+      }
+      
+      let imported = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 4) continue;
+        
+        const warehouseName = cols[0].trim();
+        const productName = cols[1].trim();
+        const qty = parseInt(cols[2]) || 0;
+        const source = cols[3].trim();
+        
+        const product = db.products.find(p => p.name === productName);
+        const warehouse = db.warehouses.find(w => w.name === warehouseName);
+        
+        if (product && warehouse && qty > 0) {
+          const now = Date.now();
+          const orderId = genId('IN');
+          db.stockInOrders.push({
+            id: orderId,
+            warehouseId: warehouse.id,
+            source: source || 'Excel导入',
+            remark: '从Excel导入',
+            details: [{ productId: product.id, qty }],
+            status: 'normal',
+            createBy: currentUser.id,
+            createByName: currentUser.displayName,
+            createTime: now,
+          });
+          const beforeQty = getStock(product.id, warehouse.id);
+          db.stockFlow.push({
+            id: genId('F'),
+            productId: product.id,
+            warehouseId: warehouse.id,
+            type: 'in',
+            qty,
+            beforeQty,
+            afterQty: beforeQty + qty,
+            orderId,
+            orderType: 'stockIn',
+            remark: source || 'Excel导入',
+            createBy: currentUser.id,
+            createByName: currentUser.displayName,
+            createTime: now,
+          });
+          imported++;
+        }
+      }
+      
+      addOperationLog('导入入库清单', `从Excel导入 ${imported} 条`);
+      saveData();
+      renderStockInList();
+      showToast('导入成功 ' + imported + ' 条');
+    } catch (err) {
+      showToast('导入失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// 出库清单导出Excel
+function exportOutListExcel() {
+  const warehouseId = document.getElementById('out-list-filter-warehouse').value;
+  const status = document.getElementById('out-list-filter-status').value;
+  const productSearch = (document.getElementById('out-list-filter-product') || {}).value || '';
+  const dateStart = (document.getElementById('out-list-filter-date-start') || {}).value || '';
+  const dateEnd = (document.getElementById('out-list-filter-date-end') || {}).value || '';
+  
+  let orders = [...db.stockOutOrders];
+  if (warehouseId) orders = orders.filter(o => o.warehouseId === warehouseId);
+  if (status) orders = orders.filter(o => o.status === status);
+  if (productSearch) { const kw = productSearch.toLowerCase(); orders = orders.filter(o => o.details.some(d => { const p = getProductById(d.productId); return p && p.name.toLowerCase().indexOf(kw) >= 0; })); }
+  if (dateStart) { const t = new Date(dateStart + 'T00:00:00').getTime(); orders = orders.filter(o => o.createTime >= t); }
+  if (dateEnd) { const t = new Date(dateEnd + 'T23:59:59').getTime(); orders = orders.filter(o => o.createTime <= t); }
+  
+  if (orders.length === 0) {
+    showToast('暂无数据');
+    return;
+  }
+  
+  const headers = ['仓库', '产品名称', '数量', '去向', '日期时间', '状态', '操作人'];
+  const rows = orders.map(o => {
+    const w = getWarehouseById(o.warehouseId);
+    const productNames = o.details.map(d => { const p = getProductById(d.productId); return p ? p.name : '-'; }).join('、');
+    const totalQty = o.details.reduce((s, d) => s + d.qty, 0);
+    return [w ? w.name : '-', productNames, totalQty, o.destination, formatTime(o.createTime), o.status === 'normal' ? '正常' : '已撤回', o.createByName];
+  });
+  
+  exportCSV('阿平仓库管理_出库清单_' + formatDate(Date.now()).replace(/-/g, '') + '.csv', headers, rows);
+  addOperationLog('导出出库清单', 'Excel格式');
+}
+
+// 出库清单导出图片
+function exportOutListImage() {
+  const warehouseId = document.getElementById('out-list-filter-warehouse').value;
+  const status = document.getElementById('out-list-filter-status').value;
+  const productSearch = (document.getElementById('out-list-filter-product') || {}).value || '';
+  const dateStart = (document.getElementById('out-list-filter-date-start') || {}).value || '';
+  const dateEnd = (document.getElementById('out-list-filter-date-end') || {}).value || '';
+  
+  let orders = [...db.stockOutOrders];
+  if (warehouseId) orders = orders.filter(o => o.warehouseId === warehouseId);
+  if (status) orders = orders.filter(o => o.status === status);
+  if (productSearch) { const kw = productSearch.toLowerCase(); orders = orders.filter(o => o.details.some(d => { const p = getProductById(d.productId); return p && p.name.toLowerCase().indexOf(kw) >= 0; })); }
+  if (dateStart) { const t = new Date(dateStart + 'T00:00:00').getTime(); orders = orders.filter(o => o.createTime >= t); }
+  if (dateEnd) { const t = new Date(dateEnd + 'T23:59:59').getTime(); orders = orders.filter(o => o.createTime <= t); }
+  
+  if (orders.length === 0) {
+    showToast('暂无数据');
+    return;
+  }
+  
+  const headers = ['仓库', '产品', '数量', '去向', '日期时间'];
+  const rows = orders.slice(0, 50).map(o => {
+    const w = getWarehouseById(o.warehouseId);
+    const productNames = o.details.map(d => { const p = getProductById(d.productId); return p ? p.name : '-'; }).join('、');
+    const totalQty = o.details.reduce((s, d) => s + d.qty, 0);
+    return [w ? w.name : '-', productNames, totalQty, o.destination, formatTime(o.createTime)];
+  });
+  
+  exportTableImage('阿平仓库管理_出库清单_' + formatDate(Date.now()).replace(/-/g, '') + '.png', '阿平仓库管理 - 出库清单', headers, rows);
+  addOperationLog('导出出库清单', '图片格式');
+}
+
+// 出库清单导入CSV
+function importOutListCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result.replace(/^\ufeff/, '');
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) {
+        showToast('文件无有效数据');
+        return;
+      }
+      
+      let imported = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 4) continue;
+        
+        const warehouseName = cols[0].trim();
+        const productName = cols[1].trim();
+        const qty = parseInt(cols[2]) || 0;
+        const destination = cols[3].trim();
+        
+        const product = db.products.find(p => p.name === productName);
+        const warehouse = db.warehouses.find(w => w.name === warehouseName);
+        
+        if (product && warehouse && qty > 0) {
+          const currentStock = getStock(product.id, warehouse.id);
+          if (currentStock < qty) continue; // 库存不足跳过
+          
+          const now = Date.now();
+          const orderId = genId('OUT');
+          db.stockOutOrders.push({
+            id: orderId,
+            warehouseId: warehouse.id,
+            destination: destination || 'Excel导入',
+            channel: '',
+            remark: '从Excel导入',
+            details: [{ productId: product.id, qty }],
+            status: 'normal',
+            createBy: currentUser.id,
+            createByName: currentUser.displayName,
+            createTime: now,
+            forceOverride: false,
+          });
+          const beforeQty = getStock(product.id, warehouse.id);
+          db.stockFlow.push({
+            id: genId('F'),
+            productId: product.id,
+            warehouseId: warehouse.id,
+            type: 'out',
+            qty,
+            beforeQty,
+            afterQty: beforeQty - qty,
+            orderId,
+            orderType: 'stockOut',
+            remark: destination || 'Excel导入',
+            createBy: currentUser.id,
+            createByName: currentUser.displayName,
+            createTime: now,
+          });
+          imported++;
+        }
+      }
+      
+      addOperationLog('导入出库清单', `从Excel导入 ${imported} 条`);
+      saveData();
+      renderStockOutList();
+      showToast('导入成功 ' + imported + ' 条');
+    } catch (err) {
+      showToast('导入失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// 调拨记录导出Excel
+function exportTransferExcel() {
+  if (db.transferOrders.length === 0) {
+    showToast('暂无调拨记录');
+    return;
+  }
+  
+  const headers = ['日期时间', '源仓库', '目标仓库', '产品', '数量', '备注', '操作人'];
+  const rows = db.transferOrders.map(o => {
+    const fromWh = getWarehouseById(o.fromWarehouseId);
+    const toWh = getWarehouseById(o.toWarehouseId);
+    const p = getProductById(o.productId);
+    return [formatTime(o.createTime), fromWh ? fromWh.name : '-', toWh ? toWh.name : '-', p ? p.name : '-', o.qty + '台', o.remark || '-', o.createByName];
+  });
+  
+  exportCSV('阿平仓库管理_调拨记录_' + formatDate(Date.now()).replace(/-/g, '') + '.csv', headers, rows);
+  addOperationLog('导出调拨记录', 'Excel格式');
+}
+
+// 调拨记录导出图片
+function exportTransferImage() {
+  if (db.transferOrders.length === 0) {
+    showToast('暂无调拨记录');
+    return;
+  }
+  
+  const headers = ['日期时间', '源仓库', '目标仓', '产品', '数量'];
+  const rows = db.transferOrders.slice(0, 50).map(o => {
+    const fromWh = getWarehouseById(o.fromWarehouseId);
+    const toWh = getWarehouseById(o.toWarehouseId);
+    const p = getProductById(o.productId);
+    return [formatTime(o.createTime), fromWh ? fromWh.name : '-', toWh ? toWh.name : '-', p ? p.name : '-', o.qty + '台'];
+  });
+  
+  exportTableImage('阿平仓库管理_调拨记录_' + formatDate(Date.now()).replace(/-/g, '') + '.png', '阿平仓库管理 - 调拨记录', headers, rows);
+  addOperationLog('导出调拨记录', '图片格式');
+}
+
+// ==================== 初始化 ====================
+function initApp() {
+  if (currentUser) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-home').classList.add('active');
+    currentPage = 'home';
+    initHome();
+  } else {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-login').classList.add('active');
+    currentPage = 'login';
+  }
+  // 启动自动同步
+  startAutoSync();
+}
+
+loadData();
+</script>
+</body>
+</html>
