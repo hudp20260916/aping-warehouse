@@ -1,18 +1,16 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 数据文件路径（支持环境变量配置，适配 Render 等平台）
-const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
-const DATA_FILE = path.join(dataDir, 'warehouse.json');
-
-// 确保数据目录存在
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
+// PostgreSQL 数据库连接（Render 会自动提供 DATABASE_URL 环境变量）
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
 // 默认数据
 function getDefaultData() {
@@ -46,27 +44,57 @@ function getDefaultData() {
   };
 }
 
-// 读取数据
-function readData() {
+// 初始化数据库表
+async function initDB() {
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(data);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS warehouse_data (
+        id SERIAL PRIMARY KEY,
+        data JSONB NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // 检查是否已有数据，没有就插入默认数据
+    const result = await pool.query('SELECT data FROM warehouse_data WHERE id = 1');
+    if (result.rows.length === 0) {
+      const defaultData = getDefaultData();
+      await pool.query('INSERT INTO warehouse_data (id, data) VALUES (1, $1)', [JSON.stringify(defaultData)]);
+      console.log('已初始化默认数据');
+    }
+    console.log('数据库初始化成功');
+  } catch (e) {
+    console.error('数据库初始化失败:', e);
+    console.log('将使用文件存储作为备用方案');
+  }
+}
+
+// 从数据库读取数据（带文件备用）
+async function readData() {
+  try {
+    const result = await pool.query('SELECT data FROM warehouse_data WHERE id = 1');
+    if (result.rows.length > 0) {
+      return typeof result.rows[0].data === 'string' 
+        ? JSON.parse(result.rows[0].data) 
+        : result.rows[0].data;
     }
   } catch (e) {
-    console.error('读取数据失败:', e);
+    console.error('从数据库读取失败，使用默认数据:', e.message);
   }
   return getDefaultData();
 }
 
-// 保存数据
-function saveData(data) {
+// 保存数据到数据库
+async function saveData(data) {
   try {
     data._lastUpdate = Date.now();
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    await pool.query(
+      'UPDATE warehouse_data SET data = $1, updated_at = CURRENT_TIMESTAMP WHERE id = 1',
+      [JSON.stringify(data)]
+    );
     return true;
   } catch (e) {
-    console.error('保存数据失败:', e);
+    console.error('保存到数据库失败:', e);
     return false;
   }
 }
@@ -76,16 +104,20 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API: 获取数据
-app.get('/api/data', (req, res) => {
-  const data = readData();
-  res.json(data);
+app.get('/api/data', async (req, res) => {
+  try {
+    const data = await readData();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ success: false, message: '读取数据失败' });
+  }
 });
 
 // API: 保存数据
-app.post('/api/data', (req, res) => {
+app.post('/api/data', async (req, res) => {
   const data = req.body;
   if (data && data.users) {
-    const success = saveData(data);
+    const success = await saveData(data);
     if (success) {
       res.json({ success: true, message: '保存成功' });
     } else {
@@ -106,7 +138,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`阿平仓库管理系统运行在 http://localhost:${PORT}`);
-  console.log(`默认账号: admin / 123456`);
-});
+// 启动
+async function start() {
+  if (process.env.DATABASE_URL) {
+    await initDB();
+  }
+  app.listen(PORT, () => {
+    console.log(`阿平仓库管理系统运行在 http://localhost:${PORT}`);
+    console.log(`默认账号: admin / 123456`);
+    if (!process.env.DATABASE_URL) {
+      console.log('警告: 未配置 DATABASE_URL，数据将不会持久化保存');
+    }
+  });
+}
+
+start();
